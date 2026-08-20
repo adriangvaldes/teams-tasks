@@ -45,7 +45,11 @@
     "test": "jest --passWithNoTests",
     "test:watch": "jest --watch",
     "typecheck": "tsc --noEmit",
-    "lint": "biome check ."
+    "lint": "biome check .",
+    "env:pull": "pnpm dlx eas-cli@22.2.0 env:pull --environment development",
+    "env:list": "pnpm dlx eas-cli@22.2.0 env:list",
+    "build:dev": "pnpm dlx eas-cli@22.2.0 build --profile development --platform android",
+    "build:preview": "pnpm dlx eas-cli@22.2.0 build --profile preview --platform android"
   },
   "private": true,
   "description": "App mobile de Times e Tarefas - Expo, TypeScript, NativeWind, Expo Router e React Query"

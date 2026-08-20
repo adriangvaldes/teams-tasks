@@ -96,13 +96,40 @@ curl http://localhost:3333/health/ready
 | Emulador Android | `http://10.0.2.2:3333` | `10.0.2.2` é o host visto de dentro do emulador |
 | Celular físico (Expo Go) | `http://<ip-da-sua-maquina>:3333` | Extraído do `hostUri` do Metro |
 
-Para apontar para outro backend (o deploy, por exemplo), crie `apps/mobile/.env`:
+> No celular físico, o computador e o telefone precisam estar na **mesma rede**, e o firewall do Windows precisa liberar a porta 3333.
+
+### Variáveis de ambiente do app: EAS
+
+O app tem **uma** variável, `EXPO_PUBLIC_API_URL`, e ela é opcional em desenvolvimento — a resolução automática acima cobre esse caso. Ela existe para apontar o app a um backend publicado.
+
+O valor não fica em arquivo versionado nem circula por mensagem: mora nas **environment variables do EAS**, por ambiente (`development`, `preview`, `production`). Quem clona faz um *pull*:
 
 ```bash
-EXPO_PUBLIC_API_URL=https://sua-api.up.railway.app
+cd apps/mobile
+pnpm env:pull          # baixa o ambiente development para .env.local (gitignored)
+pnpm env:list          # confere o que existe em cada ambiente
 ```
 
-> No celular físico, o computador e o telefone precisam estar na **mesma rede**, e o firewall do Windows precisa liberar a porta 3333.
+Para definir ou atualizar o valor (feito uma vez, por quem tem acesso ao projeto):
+
+```bash
+pnpm dlx eas-cli@22.2.0 env:set \
+  --name EXPO_PUBLIC_API_URL \
+  --value https://sua-api.up.railway.app \
+  --environment production \
+  --visibility plaintext
+```
+
+`plaintext` é intencional e não é descuido: qualquer variável com prefixo `EXPO_PUBLIC_` é **embutida no bundle** pelo Expo. Marcá-la como secreta daria uma falsa sensação de proteção — um segredo de verdade jamais deve usar esse prefixo.
+
+Os perfis do `eas.json` já apontam para o ambiente correspondente, então o build pega o valor sozinho:
+
+```bash
+pnpm build:dev        # dev client (habilita o MMKV), ambiente development
+pnpm build:preview    # APK interno, ambiente preview
+```
+
+O `eas-cli` **não** é dependência do projeto de propósito: ele traz ~317 pacotes e um build script nativo opcional (`dtrace-provider`) que fazia `pnpm install` sair com código 1 no Windows. Os scripts o invocam via `pnpm dlx` com a versão fixada, o que mantém a reprodutibilidade sem contaminar a instalação de quem só quer rodar o projeto.
 
 ### Scripts
 
