@@ -10,15 +10,22 @@ packages:
 # ATENCAO: no pnpm 11 esta configuracao mora AQUI, e nao no .npmrc.
 nodeLinker: hoisted
 
-# O pnpm 11 bloqueia postinstall de dependencias por padrao. Declarar a lista
-# aqui (em vez de rodar `pnpm approve-builds` interativamente) mantem a
-# instalacao reprodutivel: `pnpm install` funciona igual em qualquer maquina e no CI.
-onlyBuiltDependencies:
-  - '@prisma/client'
-  - '@prisma/engines'
-  - esbuild
-  - prisma
-  - unrs-resolver
+# O pnpm 11 bloqueia postinstall de dependencias por padrao e, sem esta
+# declaracao, `pnpm install` SAI COM CODIGO 1 - o que quebraria o primeiro
+# passo do README.
+#
+# O nome da chave importa: no pnpm 11 e `allowBuilds` (mapa pacote -> booleano).
+# `onlyBuiltDependencies` (lista) era o formato do pnpm 10 e e silenciosamente
+# ignorado aqui. Declarar explicitamente tambem o que NAO deve ser construido
+# evita o prompt interativo do `pnpm approve-builds` no CI.
+allowBuilds:
+  '@prisma/client': true
+  '@prisma/engines': true
+  esbuild: true
+  prisma: true
+  # Resolver nativo opcional de tooling: nao e necessario e compilar em
+  # Windows/Alpine so adiciona risco.
+  unrs-resolver: false
 
 # O pnpm 11 poe em quarentena pacotes publicados nas ultimas ~24h (protecao de
 # supply chain). O Expo publica patches de SDK quase diariamente, entao instalar
@@ -31,10 +38,3 @@ minimumReleaseAgeExclude:
   - '@react-native/*'
   - 'react-native'
   - 'react-native-*'
-
-allowBuilds:
-  '@prisma/client': set this to true or false
-  '@prisma/engines': set this to true or false
-  dtrace-provider: set this to true or false
-  esbuild: set this to true or false
-  prisma: set this to true or false
