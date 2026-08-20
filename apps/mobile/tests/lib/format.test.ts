@@ -4,7 +4,7 @@ const NOW = new Date('2026-08-20T12:00:00.000Z')
 
 describe('formatDueDateLabel', () => {
   it('devolve null quando não há prazo', () => {
-    expect(formatDueDateLabel(null, NOW)).toBeNull()
+    expect(formatDueDateLabel(null, { now: NOW })).toBeNull()
   })
 
   it.each([
@@ -14,18 +14,44 @@ describe('formatDueDateLabel', () => {
     ['2026-08-23T18:00:00.000Z', 'Vence em 3 dias'],
     ['2026-08-15T18:00:00.000Z', 'Atrasada há 5 dias'],
   ])('descreve %s como "%s"', (isoDate, expected) => {
-    expect(formatDueDateLabel(isoDate, NOW)).toBe(expected)
+    expect(formatDueDateLabel(isoDate, { now: NOW })).toBe(expected)
   })
 
   it('cai para data absoluta quando está muito distante', () => {
-    expect(formatDueDateLabel('2027-01-10T18:00:00.000Z', NOW)).toMatch(
-      /^Vence em \d{2}/,
-    )
+    expect(
+      formatDueDateLabel('2027-01-10T18:00:00.000Z', { now: NOW }),
+    ).toMatch(/^Vence em \d{2}/)
+  })
+
+  describe('tarefa concluída', () => {
+    it('troca urgência por registro histórico em vez de dizer "atrasada"', () => {
+      // Dizer "Atrasada há 5 dias" numa tarefa entregue é falso e faz o
+      // usuário achar que ainda há pendência.
+      expect(
+        formatDueDateLabel('2026-08-15T18:00:00.000Z', {
+          now: NOW,
+          isDone: true,
+        }),
+      ).toMatch(/^Prazo: /)
+    })
+
+    it('vale também para prazo futuro', () => {
+      expect(
+        formatDueDateLabel('2026-08-23T18:00:00.000Z', {
+          now: NOW,
+          isDone: true,
+        }),
+      ).toMatch(/^Prazo: /)
+    })
+
+    it('segue devolvendo null quando não há prazo', () => {
+      expect(formatDueDateLabel(null, { now: NOW, isDone: true })).toBeNull()
+    })
   })
 
   it('compara por dia inteiro, ignorando a hora', () => {
     // 23:59 de hoje continua sendo "hoje", não "amanhã".
-    expect(formatDueDateLabel('2026-08-20T23:59:00.000Z', NOW)).toBe(
+    expect(formatDueDateLabel('2026-08-20T23:59:00.000Z', { now: NOW })).toBe(
       'Vence hoje',
     )
   })

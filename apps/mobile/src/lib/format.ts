@@ -34,15 +34,27 @@ function diffInDays(target: Date, reference: Date): number {
   return Math.round((startOfTarget - startOfReference) / 86_400_000)
 }
 
+interface DueDateLabelOptions {
+  now?: Date
+  /** Tarefa concluída: o prazo passa a ser histórico, não urgência. */
+  isDone?: boolean
+}
+
 /**
  * Rótulo do prazo em linguagem natural. "Vence em 3 dias" comunica urgência
  * bem melhor do que "01/09/2026" numa lista que se lê de relance.
+ *
+ * Para tarefa CONCLUÍDA o texto muda de registro. Dizer "Atrasada há 5 dias"
+ * numa tarefa já entregue é simplesmente falso: o prazo virou informação
+ * histórica, e a frase de urgência fazia o usuário achar que havia pendência.
  */
 export function formatDueDateLabel(
   isoDate: string | null,
-  now: Date = new Date(),
+  { now = new Date(), isDone = false }: DueDateLabelOptions = {},
 ): string | null {
   if (!isoDate) return null
+
+  if (isDone) return `Prazo: ${formatDate(isoDate)}`
 
   const dueDate = new Date(isoDate)
   const days = diffInDays(dueDate, now)

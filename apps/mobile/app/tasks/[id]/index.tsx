@@ -37,7 +37,9 @@ export default function TaskDetailScreen() {
   }
 
   const task = query.data.data
-  const dueLabel = formatDueDateLabel(task.dueDate)
+  const dueLabel = formatDueDateLabel(task.dueDate, {
+    isDone: task.status === 'DONE',
+  })
 
   const confirmDelete = (): void => {
     Alert.alert(

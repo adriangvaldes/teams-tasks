@@ -17,8 +17,8 @@ export function TaskCard({
   onToggleStatus,
   isUpdating = false,
 }: TaskCardProps) {
-  const dueLabel = formatDueDateLabel(task.dueDate)
   const isDone = task.status === 'DONE'
+  const dueLabel = formatDueDateLabel(task.dueDate, { isDone })
 
   return (
     <Pressable
