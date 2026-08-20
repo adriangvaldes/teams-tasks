@@ -1,6 +1,6 @@
+import type { UniqueEntityId } from '../../../domain/shared/unique-entity-id'
 import type { Team } from '../../../domain/team/team.entity'
 import type { TeamName } from '../../../domain/team/value-objects/team-name.vo'
-import type { UniqueEntityId } from '../../../domain/shared/unique-entity-id'
 import type {
   PaginatedResult,
   PaginationCriteria,

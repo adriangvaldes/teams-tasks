@@ -34,6 +34,8 @@ export class RecordingLogger implements Logger {
     message: string,
     context?: LogContext,
   ): void {
-    this.entries.push(context ? { level, message, context } : { level, message })
+    this.entries.push(
+      context ? { level, message, context } : { level, message },
+    )
   }
 }

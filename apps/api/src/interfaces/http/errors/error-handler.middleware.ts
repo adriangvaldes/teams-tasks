@@ -26,15 +26,19 @@ export function createErrorHandler(logger: Logger): ErrorRequestHandler {
   // middleware de erro - por isso `next` existe mesmo sem ser usado.
   return (error, req, res, _next) => {
     if (error instanceof RequestValidationError) {
-      return res.status(400).json(
-        envelope(ERROR_CODES.VALIDATION_ERROR, error.message, error.details),
-      )
+      return res
+        .status(400)
+        .json(
+          envelope(ERROR_CODES.VALIDATION_ERROR, error.message, error.details),
+        )
     }
 
     if (error instanceof DomainError) {
       const { status, code } = DOMAIN_KIND_TO_HTTP[error.kind]
 
-      return res.status(status).json(envelope(code, error.message, error.details))
+      return res
+        .status(status)
+        .json(envelope(code, error.message, error.details))
     }
 
     // Daqui para baixo e falha inesperada: loga com stack para investigacao,

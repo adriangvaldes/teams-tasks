@@ -1,3 +1,4 @@
+import type { PaginatedOutput } from '../../dtos/pagination.dto'
 import type {
   CreateTeamInput,
   DeleteTeamInput,
@@ -6,7 +7,6 @@ import type {
   TeamOutput,
   UpdateTeamInput,
 } from '../../dtos/team.dto'
-import type { PaginatedOutput } from '../../dtos/pagination.dto'
 import type { UseCase } from './use-case.port'
 
 export type CreateTeamUseCase = UseCase<CreateTeamInput, TeamOutput>

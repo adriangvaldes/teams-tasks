@@ -1,3 +1,4 @@
+import type { PaginatedOutput } from '../../dtos/pagination.dto'
 import type {
   ChangeTaskStatusInput,
   CreateTaskInput,
@@ -7,7 +8,6 @@ import type {
   TaskOutput,
   UpdateTaskInput,
 } from '../../dtos/task.dto'
-import type { PaginatedOutput } from '../../dtos/pagination.dto'
 import type { UseCase } from './use-case.port'
 
 export type CreateTaskUseCase = UseCase<CreateTaskInput, TaskOutput>

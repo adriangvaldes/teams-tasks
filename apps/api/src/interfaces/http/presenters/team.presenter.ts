@@ -1,5 +1,8 @@
 import type { TeamDTO, TeamSummaryDTO } from '@teams-tasks/shared'
-import type { TeamOutput, TeamSummaryOutput } from '../../../application/dtos/team.dto'
+import type {
+  TeamOutput,
+  TeamSummaryOutput,
+} from '../../../application/dtos/team.dto'
 
 /**
  * Travessia aplicacao -> HTTP. Responsabilidade unica: serializar.

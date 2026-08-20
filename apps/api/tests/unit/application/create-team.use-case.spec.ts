@@ -16,11 +16,7 @@ describe('CreateTeam', () => {
   beforeEach(() => {
     teamRepository = new InMemoryTeamRepository()
     clock = new FixedClock(new Date('2026-03-10T12:00:00.000Z'))
-    useCase = new CreateTeam(
-      teamRepository,
-      new SequentialIdGenerator(),
-      clock,
-    )
+    useCase = new CreateTeam(teamRepository, new SequentialIdGenerator(), clock)
   })
 
   it('cria o time e devolve a saida ja normalizada', async () => {

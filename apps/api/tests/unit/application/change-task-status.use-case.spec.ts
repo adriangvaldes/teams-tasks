@@ -54,9 +54,7 @@ describe('ChangeTaskStatus', () => {
   it('persiste a mudanca no repositorio', async () => {
     await useCase.execute({ taskId: TASK_ID, status: 'IN_PROGRESS' })
 
-    const stored = await taskRepository.findById(
-      UniqueEntityId.create(TASK_ID),
-    )
+    const stored = await taskRepository.findById(UniqueEntityId.create(TASK_ID))
 
     expect(stored?.status.value).toBe('IN_PROGRESS')
   })

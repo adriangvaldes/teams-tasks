@@ -41,7 +41,9 @@ export function createHandler<
   TParams = undefined,
 >(
   schemas: RequestSchemas<TBody, TQuery, TParams>,
-  handle: (context: HandlerContext<TBody, TQuery, TParams>) => Promise<HandlerResult>,
+  handle: (
+    context: HandlerContext<TBody, TQuery, TParams>,
+  ) => Promise<HandlerResult>,
 ): RequestHandler {
   return async (req, res) => {
     const details: ErrorDetail[] = []

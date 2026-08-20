@@ -1,7 +1,5 @@
 import type { Prisma } from '@prisma/client'
-import type {
-  PaginatedResult,
-} from '../../../application/dtos/pagination.dto'
+import type { PaginatedResult } from '../../../application/dtos/pagination.dto'
 import type {
   ListTeamsCriteria,
   TeamRepository,
@@ -60,7 +58,9 @@ export class PrismaTeamRepository implements TeamRepository {
   }
 
   async create(team: Team): Promise<void> {
-    await this.prisma.team.create({ data: PrismaTeamMapper.toPersistence(team) })
+    await this.prisma.team.create({
+      data: PrismaTeamMapper.toPersistence(team),
+    })
   }
 
   async update(team: Team): Promise<void> {

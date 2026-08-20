@@ -27,10 +27,11 @@ export const createTeamBodySchema = z.object({
   description: teamDescriptionSchema.optional(),
 })
 
-export const updateTeamBodySchema = createTeamBodySchema.partial().refine(
-  (body) => Object.keys(body).length > 0,
-  { message: 'Informe ao menos um campo para atualizar' },
-)
+export const updateTeamBodySchema = createTeamBodySchema
+  .partial()
+  .refine((body) => Object.keys(body).length > 0, {
+    message: 'Informe ao menos um campo para atualizar',
+  })
 
 export const TEAM_SORT_OPTIONS = [
   'name:asc',

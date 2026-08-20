@@ -70,10 +70,12 @@ describe('POST /api/tasks', () => {
   })
 
   it('devolve 404 quando algum time informado nao existe', async () => {
-    const response = await api().post('/api/tasks').send({
-      title: 'Tarefa orfa',
-      teamIds: ['99999999-9999-4999-8999-999999999999'],
-    })
+    const response = await api()
+      .post('/api/tasks')
+      .send({
+        title: 'Tarefa orfa',
+        teamIds: ['99999999-9999-4999-8999-999999999999'],
+      })
 
     expect(response.status).toBe(404)
     expect(response.body.error.code).toBe('NOT_FOUND')
@@ -91,9 +93,17 @@ describe('POST /api/tasks', () => {
 describe('GET /api/tasks', () => {
   beforeEach(async () => {
     const fixtures = [
-      { title: 'Implementar listagem', status: 'IN_PROGRESS', teamIds: [alphaId] },
+      {
+        title: 'Implementar listagem',
+        status: 'IN_PROGRESS',
+        teamIds: [alphaId],
+      },
       { title: 'Configurar pipeline', status: 'DONE', teamIds: [designId] },
-      { title: 'Revisar indices de busca', status: 'PENDING', teamIds: [designId] },
+      {
+        title: 'Revisar indices de busca',
+        status: 'PENDING',
+        teamIds: [designId],
+      },
       { title: 'Preparar backlog', status: 'PENDING', teamIds: [] },
     ]
 
@@ -180,7 +190,9 @@ describe('PATCH /api/tasks/:id/status', () => {
   })
 
   it('persiste a mudanca', async () => {
-    const { body } = await api().post('/api/tasks').send({ title: 'Uma tarefa' })
+    const { body } = await api()
+      .post('/api/tasks')
+      .send({ title: 'Uma tarefa' })
 
     await api()
       .patch(`/api/tasks/${body.data.id}/status`)
@@ -192,7 +204,9 @@ describe('PATCH /api/tasks/:id/status', () => {
   })
 
   it('devolve 400 para status invalido', async () => {
-    const { body } = await api().post('/api/tasks').send({ title: 'Uma tarefa' })
+    const { body } = await api()
+      .post('/api/tasks')
+      .send({ title: 'Uma tarefa' })
 
     const response = await api()
       .patch(`/api/tasks/${body.data.id}/status`)
@@ -236,7 +250,9 @@ describe('PUT /api/tasks/:id', () => {
 
 describe('DELETE /api/tasks/:id', () => {
   it('remove a tarefa e devolve 204', async () => {
-    const { body } = await api().post('/api/tasks').send({ title: 'Uma tarefa' })
+    const { body } = await api()
+      .post('/api/tasks')
+      .send({ title: 'Uma tarefa' })
 
     expect((await api().delete(`/api/tasks/${body.data.id}`)).status).toBe(204)
     expect((await api().get(`/api/tasks/${body.data.id}`)).status).toBe(404)

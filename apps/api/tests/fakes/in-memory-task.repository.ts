@@ -3,8 +3,8 @@ import type {
   ListTasksCriteria,
   TaskRepository,
 } from '../../src/application/ports/out/task-repository.port'
-import type { Task } from '../../src/domain/task/task.entity'
 import type { UniqueEntityId } from '../../src/domain/shared/unique-entity-id'
+import type { Task } from '../../src/domain/task/task.entity'
 
 export class InMemoryTaskRepository implements TaskRepository {
   readonly items: Task[] = []

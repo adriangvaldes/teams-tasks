@@ -1,7 +1,7 @@
 import 'dotenv/config'
+import { UniqueEntityId } from '../src/domain/shared/unique-entity-id'
 import { Task } from '../src/domain/task/task.entity'
 import { Team } from '../src/domain/team/team.entity'
-import { UniqueEntityId } from '../src/domain/shared/unique-entity-id'
 import { loadEnv } from '../src/infrastructure/config/env'
 import { createPrismaClient } from '../src/infrastructure/persistence/prisma/prisma-client'
 import { PrismaTaskRepository } from '../src/infrastructure/persistence/prisma/prisma-task.repository'

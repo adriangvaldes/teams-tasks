@@ -64,9 +64,9 @@ describe('POST /api/teams', () => {
 
     expect(response.status).toBe(400)
     expect(response.body.error.code).toBe('VALIDATION_ERROR')
-    expect(response.body.error.details.map((d: { path: string }) => d.path)).toEqual(
-      expect.arrayContaining(['name', 'colorHex']),
-    )
+    expect(
+      response.body.error.details.map((d: { path: string }) => d.path),
+    ).toEqual(expect.arrayContaining(['name', 'colorHex']))
   })
 })
 

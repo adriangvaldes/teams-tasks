@@ -1,6 +1,6 @@
+import type { UniqueEntityId } from '../../../domain/shared/unique-entity-id'
 import type { Task } from '../../../domain/task/task.entity'
 import type { TaskStatus } from '../../../domain/task/value-objects/task-status.vo'
-import type { UniqueEntityId } from '../../../domain/shared/unique-entity-id'
 import type {
   PaginatedResult,
   PaginationCriteria,
@@ -23,7 +23,9 @@ export interface TaskRepository {
    * Contagem agregada por time em UMA consulta. Existe justamente para que
    * a listagem de times nao caia em N+1 ao exibir o total de tarefas.
    */
-  countByTeamIds(teamIds: readonly UniqueEntityId[]): Promise<Map<string, number>>
+  countByTeamIds(
+    teamIds: readonly UniqueEntityId[],
+  ): Promise<Map<string, number>>
   create(task: Task): Promise<void>
   update(task: Task): Promise<void>
   delete(id: UniqueEntityId): Promise<void>

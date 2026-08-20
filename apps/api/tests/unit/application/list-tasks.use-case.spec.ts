@@ -42,9 +42,17 @@ describe('ListTasks', () => {
 
     const ids = new SequentialIdGenerator()
     const fixtures = [
-      { title: 'Implementar listagem', status: 'IN_PROGRESS', teamIds: [TEAM_ALPHA] },
+      {
+        title: 'Implementar listagem',
+        status: 'IN_PROGRESS',
+        teamIds: [TEAM_ALPHA],
+      },
       { title: 'Configurar pipeline', status: 'DONE', teamIds: [TEAM_INFRA] },
-      { title: 'Revisar indices de busca', status: 'PENDING', teamIds: [TEAM_INFRA] },
+      {
+        title: 'Revisar indices de busca',
+        status: 'PENDING',
+        teamIds: [TEAM_INFRA],
+      },
       { title: 'Preparar backlog', status: 'PENDING', teamIds: [] },
     ]
 
@@ -103,7 +111,10 @@ describe('ListTasks', () => {
   })
 
   it('busca por texto no titulo, ignorando a caixa', async () => {
-    const result = await useCase.execute({ ...DEFAULT_QUERY, search: 'INDICES' })
+    const result = await useCase.execute({
+      ...DEFAULT_QUERY,
+      search: 'INDICES',
+    })
 
     expect(result.total).toBe(1)
   })
@@ -143,7 +154,10 @@ describe('ListTasks', () => {
   })
 
   it('devolve tarefa sem time com a lista de times vazia', async () => {
-    const result = await useCase.execute({ ...DEFAULT_QUERY, search: 'backlog' })
+    const result = await useCase.execute({
+      ...DEFAULT_QUERY,
+      search: 'backlog',
+    })
 
     expect(result.items[0]?.teams).toEqual([])
   })

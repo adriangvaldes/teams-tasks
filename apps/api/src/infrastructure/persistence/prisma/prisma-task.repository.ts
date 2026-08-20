@@ -4,8 +4,8 @@ import type {
   ListTasksCriteria,
   TaskRepository,
 } from '../../../application/ports/out/task-repository.port'
-import type { Task } from '../../../domain/task/task.entity'
 import type { UniqueEntityId } from '../../../domain/shared/unique-entity-id'
+import type { Task } from '../../../domain/task/task.entity'
 import { PrismaTaskMapper } from './mappers/prisma-task.mapper'
 import type { PrismaClient } from './prisma-client'
 

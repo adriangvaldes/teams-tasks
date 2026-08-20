@@ -1,8 +1,8 @@
 import type { Task as PrismaTask, TaskTeam } from '@prisma/client'
+import { UniqueEntityId } from '../../../../domain/shared/unique-entity-id'
 import { Task } from '../../../../domain/task/task.entity'
 import { TaskStatus } from '../../../../domain/task/value-objects/task-status.vo'
 import { TaskTitle } from '../../../../domain/task/value-objects/task-title.vo'
-import { UniqueEntityId } from '../../../../domain/shared/unique-entity-id'
 
 /** Linha de tarefa com os vinculos de time carregados junto. */
 export type PrismaTaskWithTeams = PrismaTask & {

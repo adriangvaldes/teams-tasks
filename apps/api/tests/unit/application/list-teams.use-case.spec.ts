@@ -43,7 +43,11 @@ describe('ListTeams', () => {
     // 2 tarefas no Alpha, 1 no Design, nenhuma na Plataforma.
     for (const teamIds of [[TEAM_ALPHA], [TEAM_ALPHA], [TEAM_DESIGN]]) {
       await taskRepository.create(
-        Task.create({ title: 'Tarefa de exemplo', teamIds }, ids.generate(), NOW),
+        Task.create(
+          { title: 'Tarefa de exemplo', teamIds },
+          ids.generate(),
+          NOW,
+        ),
       )
     }
   })
@@ -57,9 +61,7 @@ describe('ListTeams', () => {
   it('anexa a contagem de tarefas de cada time', async () => {
     const result = await useCase.execute({ ...DEFAULT_QUERY })
 
-    expect(
-      result.items.map((team) => [team.name, team.taskCount]),
-    ).toEqual([
+    expect(result.items.map((team) => [team.name, team.taskCount])).toEqual([
       ['Design System', 1],
       ['Plataforma', 0],
       ['Squad Alpha', 2],

@@ -22,9 +22,7 @@ export class TeamLoader {
   ): Promise<Map<string, Team>> {
     if (teamIds.length === 0) return new Map()
 
-    const unique = [
-      ...new Map(teamIds.map((id) => [id.value, id])).values(),
-    ]
+    const unique = [...new Map(teamIds.map((id) => [id.value, id])).values()]
 
     const teams = await this.teamRepository.findManyByIds(unique)
 
