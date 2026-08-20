@@ -28,7 +28,7 @@ export function createHealthRouter(prisma: PrismaClient): Router {
       res.status(503).json({
         error: {
           code: 'INTERNAL_ERROR',
-          message: 'Banco de dados indisponivel',
+          message: 'Banco de dados indisponível',
         },
       })
     }

@@ -8,7 +8,7 @@ export class InvalidTaskTitleError extends ValidationError {
 
 export class InvalidTaskDescriptionError extends ValidationError {
   constructor(maxLength: number) {
-    const message = `Descricao deve ter no maximo ${maxLength} caracteres`
+    const message = `Descrição deve ter no máximo ${maxLength} caracteres`
     super(message, [{ path: 'description', message }])
   }
 }
@@ -16,7 +16,7 @@ export class InvalidTaskDescriptionError extends ValidationError {
 export class InvalidTaskStatusError extends ValidationError {
   constructor(received: string, allowed: readonly string[]) {
     const message = `Status deve ser um de: ${allowed.join(', ')}`
-    super(`"${received}" e um status invalido. ${message}`, [
+    super(`"${received}" é um status inválido. ${message}`, [
       { path: 'status', message },
     ])
   }
@@ -24,8 +24,8 @@ export class InvalidTaskStatusError extends ValidationError {
 
 export class InvalidDueDateError extends ValidationError {
   constructor(received: string) {
-    const message = 'Data de vencimento deve ser uma data valida'
-    super(`"${received}" e invalido. ${message}`, [
+    const message = 'Data de vencimento deve ser uma data válida'
+    super(`"${received}" é inválido. ${message}`, [
       { path: 'dueDate', message },
     ])
   }
@@ -33,13 +33,13 @@ export class InvalidDueDateError extends ValidationError {
 
 export class DuplicateTeamAssignmentError extends ValidationError {
   constructor() {
-    const message = 'Nao repita o mesmo time na mesma tarefa'
+    const message = 'Não repita o mesmo time na mesma tarefa'
     super(message, [{ path: 'teamIds', message }])
   }
 }
 
 export class TaskNotFoundError extends NotFoundError {
   constructor(taskId: string) {
-    super(`Tarefa ${taskId} nao encontrada`)
+    super(`Tarefa ${taskId} não encontrada`)
   }
 }

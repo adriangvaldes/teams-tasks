@@ -13,7 +13,7 @@ export class InvalidTeamNameError extends ValidationError {
 export class InvalidColorHexError extends ValidationError {
   constructor(received: string) {
     const message = 'Cor deve estar no formato hexadecimal #RRGGBB'
-    super(`"${received}" e invalido. ${message}`, [
+    super(`"${received}" é inválido. ${message}`, [
       { path: 'colorHex', message },
     ])
   }
@@ -21,28 +21,28 @@ export class InvalidColorHexError extends ValidationError {
 
 export class InvalidTeamDescriptionError extends ValidationError {
   constructor(maxLength: number) {
-    const message = `Descricao deve ter no maximo ${maxLength} caracteres`
+    const message = `Descrição deve ter no máximo ${maxLength} caracteres`
     super(message, [{ path: 'description', message }])
   }
 }
 
 export class TeamNotFoundError extends NotFoundError {
   constructor(teamId: string) {
-    super(`Time ${teamId} nao encontrado`)
+    super(`Time ${teamId} não encontrado`)
   }
 }
 
 export class TeamsNotFoundError extends NotFoundError {
   constructor(teamIds: string[]) {
-    super(`Time(s) nao encontrado(s): ${teamIds.join(', ')}`, [
-      { path: 'teamIds', message: 'Um ou mais times informados nao existem' },
+    super(`Time(s) não encontrado(s): ${teamIds.join(', ')}`, [
+      { path: 'teamIds', message: 'Um ou mais times informados não existem' },
     ])
   }
 }
 
 export class TeamNameAlreadyInUseError extends ConflictError {
   constructor(name: string) {
-    const message = `Ja existe um time chamado "${name}"`
+    const message = `Já existe um time chamado "${name}"`
     super(message, [{ path: 'name', message }])
   }
 }

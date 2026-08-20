@@ -17,7 +17,7 @@ export class TeamName {
 
     if (normalized.length > MAX_LENGTH) {
       throw new InvalidTeamNameError(
-        `Nome do time deve ter no maximo ${MAX_LENGTH} caracteres`,
+        `Nome do time deve ter no máximo ${MAX_LENGTH} caracteres`,
       )
     }
 

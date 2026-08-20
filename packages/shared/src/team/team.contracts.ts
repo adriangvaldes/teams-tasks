@@ -1,7 +1,13 @@
 import { z } from 'zod'
 import { paginationQuerySchema } from '../common/pagination'
 
-/** Cor do time em hexadecimal de 6 digitos. Renderizada como chip na tarefa. */
+/**
+ * Cor do time em hexadecimal de 6 dígitos. Renderizada como chip na tarefa.
+ *
+ * As mensagens deste arquivo são exibidas ao usuário final: elas viajam no
+ * `details` do envelope de erro da API e são as mesmas que o formulário do app
+ * mostra sob cada campo. Por isso estão em pt-BR, acentuadas.
+ */
 export const colorHexSchema = z
   .string()
   .trim()
@@ -12,19 +18,21 @@ export const teamNameSchema = z
   .string()
   .trim()
   .min(2, 'Nome do time deve ter ao menos 2 caracteres')
-  .max(60, 'Nome do time deve ter no maximo 60 caracteres')
+  .max(60, 'Nome do time deve ter no máximo 60 caracteres')
 
 export const teamDescriptionSchema = z
   .string()
   .trim()
-  .max(500, 'Descricao deve ter no maximo 500 caracteres')
+  .max(500, 'Descrição deve ter no máximo 500 caracteres')
 
 // ---------- Entrada ----------
 
 export const createTeamBodySchema = z.object({
   name: teamNameSchema,
   colorHex: colorHexSchema,
-  description: teamDescriptionSchema.optional(),
+  // nullish (e não apenas optional) porque `null` é como o contrato expressa
+  // "sem descrição" - o que o formulário precisa para LIMPAR o campo na edição.
+  description: teamDescriptionSchema.nullish(),
 })
 
 export const updateTeamBodySchema = createTeamBodySchema
@@ -50,7 +58,7 @@ export type UpdateTeamBody = z.infer<typeof updateTeamBodySchema>
 export type ListTeamsQuery = z.infer<typeof listTeamsQuerySchema>
 export type TeamSortOption = (typeof TEAM_SORT_OPTIONS)[number]
 
-// ---------- Saida ----------
+// ---------- Saída ----------
 
 /** Resumo embutido na tarefa: o suficiente para o chip de cor, sem round-trip extra. */
 export interface TeamSummaryDTO {

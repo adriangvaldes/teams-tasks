@@ -12,13 +12,13 @@ export class TaskTitle {
 
     if (normalized.length < MIN_LENGTH) {
       throw new InvalidTaskTitleError(
-        `Titulo deve ter ao menos ${MIN_LENGTH} caracteres`,
+        `Título deve ter ao menos ${MIN_LENGTH} caracteres`,
       )
     }
 
     if (normalized.length > MAX_LENGTH) {
       throw new InvalidTaskTitleError(
-        `Titulo deve ter no maximo ${MAX_LENGTH} caracteres`,
+        `Título deve ter no máximo ${MAX_LENGTH} caracteres`,
       )
     }
 

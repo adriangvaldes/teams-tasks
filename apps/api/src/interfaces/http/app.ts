@@ -62,7 +62,7 @@ export function createApp({
     res.status(404).json({
       error: {
         code: ERROR_CODES.NOT_FOUND,
-        message: `Rota nao encontrada: ${req.method} ${req.originalUrl}`,
+        message: `Rota não encontrada: ${req.method} ${req.originalUrl}`,
       },
     })
   })

@@ -10,7 +10,7 @@ export class RequestValidationError extends Error {
   readonly details: ErrorDetail[]
 
   constructor(details: ErrorDetail[]) {
-    super('Requisicao invalida')
+    super('Requisição inválida')
     this.name = 'RequestValidationError'
     this.details = details
   }

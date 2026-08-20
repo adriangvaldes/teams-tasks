@@ -6,5 +6,5 @@ import { z } from 'zod'
  * de dados que o mobile reusa nos formularios.
  */
 export const idParamsSchema = z.object({
-  id: z.uuid('id deve ser um UUID valido'),
+  id: z.uuid('id deve ser um UUID válido'),
 })

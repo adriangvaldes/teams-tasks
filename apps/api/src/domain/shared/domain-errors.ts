@@ -39,8 +39,8 @@ export abstract class ConflictError extends DomainError {
 
 export class InvalidUuidError extends ValidationError {
   constructor(received: string) {
-    super(`"${received}" nao e um UUID valido`, [
-      { path: 'id', message: 'Deve ser um UUID valido' },
+    super(`"${received}" não é um UUID válido`, [
+      { path: 'id', message: 'Deve ser um UUID válido' },
     ])
   }
 }

@@ -7,43 +7,43 @@ export const TASK_STATUSES = ['PENDING', 'IN_PROGRESS', 'DONE'] as const
 export const taskStatusSchema = z.enum(TASK_STATUSES)
 export type TaskStatusValue = (typeof TASK_STATUSES)[number]
 
-/** Rotulos em pt-BR exigidos pela UI (Pendente | Em Progresso | Concluida). */
+/** Rótulos em pt-BR exigidos pela UI (Pendente | Em Progresso | Concluída). */
 export const TASK_STATUS_LABELS: Record<TaskStatusValue, string> = {
   PENDING: 'Pendente',
   IN_PROGRESS: 'Em Progresso',
-  DONE: 'Concluida',
+  DONE: 'Concluída',
 }
 
-/** Requisito de aceitacao: titulo com no minimo 3 caracteres. */
+/** Requisito de aceitação: título com no mínimo 3 caracteres. */
 export const taskTitleSchema = z
   .string()
   .trim()
-  .min(3, 'Titulo deve ter ao menos 3 caracteres')
-  .max(120, 'Titulo deve ter no maximo 120 caracteres')
+  .min(3, 'Título deve ter ao menos 3 caracteres')
+  .max(120, 'Título deve ter no máximo 120 caracteres')
 
 export const taskDescriptionSchema = z
   .string()
   .trim()
-  .max(2000, 'Descricao deve ter no maximo 2000 caracteres')
+  .max(2000, 'Descrição deve ter no máximo 2000 caracteres')
 
 export const dueDateSchema = z.iso.datetime({
   offset: true,
-  message: 'Data de vencimento deve ser uma data ISO 8601 valida',
+  message: 'Data de vencimento deve ser uma data ISO 8601 válida',
 })
 
 /** Uma tarefa pode pertencer a zero ou mais times. */
 export const teamIdsSchema = z
-  .array(z.uuid('teamId deve ser um UUID valido'))
-  .max(20, 'Uma tarefa pode ter no maximo 20 times')
+  .array(z.uuid('teamId deve ser um UUID válido'))
+  .max(20, 'Uma tarefa pode ter no máximo 20 times')
   .refine((ids) => new Set(ids).size === ids.length, {
-    message: 'Nao repita o mesmo time',
+    message: 'Não repita o mesmo time',
   })
 
 // ---------- Entrada ----------
 
 export const createTaskBodySchema = z.object({
   title: taskTitleSchema,
-  description: taskDescriptionSchema.optional(),
+  description: taskDescriptionSchema.nullish(),
   status: taskStatusSchema.default('PENDING'),
   dueDate: dueDateSchema.nullish(),
   teamIds: teamIdsSchema.default([]),
@@ -61,7 +61,7 @@ export const updateTaskBodySchema = z
     message: 'Informe ao menos um campo para atualizar',
   })
 
-/** Acao rapida da tela de detalhe: alterar apenas o status. */
+/** Ação rápida da tela de detalhe: alterar apenas o status. */
 export const changeTaskStatusBodySchema = z.object({
   status: taskStatusSchema,
 })
@@ -78,7 +78,7 @@ export const TASK_SORT_OPTIONS = [
 ] as const
 
 export const listTasksQuerySchema = paginationQuerySchema.extend({
-  teamId: z.uuid('teamId deve ser um UUID valido').optional(),
+  teamId: z.uuid('teamId deve ser um UUID válido').optional(),
   status: taskStatusSchema.optional(),
   search: z.string().trim().min(1).max(120).optional(),
   sort: z.enum(TASK_SORT_OPTIONS).default('createdAt:desc'),
@@ -90,7 +90,7 @@ export type ChangeTaskStatusBody = z.infer<typeof changeTaskStatusBodySchema>
 export type ListTasksQuery = z.infer<typeof listTasksQuerySchema>
 export type TaskSortOption = (typeof TASK_SORT_OPTIONS)[number]
 
-// ---------- Saida ----------
+// ---------- Saída ----------
 
 export interface TaskDTO {
   id: string
@@ -98,7 +98,7 @@ export interface TaskDTO {
   description: string | null
   status: TaskStatusValue
   dueDate: string | null
-  /** Embutido de proposito: a lista de tarefas renderiza o chip sem request extra. */
+  /** Embutido de propósito: a lista de tarefas renderiza o chip sem request extra. */
   teams: TeamSummaryDTO[]
   /** Calculado no servidor para que cliente e API concordem sobre "atrasada". */
   isOverdue: boolean
