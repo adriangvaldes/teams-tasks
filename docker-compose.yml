@@ -1,0 +1,23 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: teams-tasks-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: teams_tasks
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      # O healthcheck existe para que `pnpm setup` possa rodar as migrations
+      # imediatamente depois do `db:up`, sem race condition.
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d teams_tasks']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres-data:
