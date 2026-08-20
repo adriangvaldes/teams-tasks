@@ -2,6 +2,14 @@ packages:
   - 'apps/*'
   - 'packages/*'
 
+# O Metro (React Native) nao resolve a arvore de symlinks isolada do pnpm: um
+# pacote como `expo` nao consegue enxergar as proprias dependencias
+# (expo-modules-core) porque elas ficam sob node_modules/.pnpm. O linker
+# hoisted produz um node_modules plano, que o Metro entende.
+#
+# ATENCAO: no pnpm 11 esta configuracao mora AQUI, e nao no .npmrc.
+nodeLinker: hoisted
+
 # O pnpm 11 bloqueia postinstall de dependencias por padrao. Declarar a lista
 # aqui (em vez de rodar `pnpm approve-builds` interativamente) mantem a
 # instalacao reprodutivel: `pnpm install` funciona igual em qualquer maquina e no CI.
@@ -25,4 +33,7 @@ minimumReleaseAgeExclude:
   - 'react-native-*'
 
 allowBuilds:
-  unrs-resolver: set this to true or false
+  '@prisma/client': set this to true or false
+  '@prisma/engines': set this to true or false
+  esbuild: set this to true or false
+  prisma: set this to true or false
