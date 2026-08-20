@@ -58,5 +58,20 @@
         "organizeImports": "on"
       }
     }
-  }
+  },
+  "overrides": [
+    {
+      "includes": ["apps/mobile/app/**", "apps/mobile/src/components/**"],
+      "linter": {
+        "rules": {
+          "complexity": {
+            "noExcessiveCognitiveComplexity": {
+              "level": "warn",
+              "options": { "maxAllowedComplexity": 16 }
+            }
+          }
+        }
+      }
+    }
+  ]
 }
