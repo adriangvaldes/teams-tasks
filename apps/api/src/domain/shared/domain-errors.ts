@@ -1,0 +1,46 @@
+/**
+ * Categoria semantica do erro de dominio.
+ *
+ * Repare que NAO existe status HTTP aqui: o dominio nao conhece HTTP. A traducao
+ * para status code e feita no adapter de entrada (interfaces/http/errors),
+ * respeitando a regra de dependencia da arquitetura hexagonal.
+ */
+export type DomainErrorKind = 'VALIDATION' | 'NOT_FOUND' | 'CONFLICT'
+
+export interface DomainErrorDetail {
+  path: string
+  message: string
+}
+
+export abstract class DomainError extends Error {
+  abstract readonly kind: DomainErrorKind
+  readonly details?: DomainErrorDetail[]
+
+  protected constructor(message: string, details?: DomainErrorDetail[]) {
+    super(message)
+    this.name = new.target.name
+    if (details) {
+      this.details = details
+    }
+  }
+}
+
+export abstract class ValidationError extends DomainError {
+  readonly kind = 'VALIDATION' as const
+}
+
+export abstract class NotFoundError extends DomainError {
+  readonly kind = 'NOT_FOUND' as const
+}
+
+export abstract class ConflictError extends DomainError {
+  readonly kind = 'CONFLICT' as const
+}
+
+export class InvalidUuidError extends ValidationError {
+  constructor(received: string) {
+    super(`"${received}" nao e um UUID valido`, [
+      { path: 'id', message: 'Deve ser um UUID valido' },
+    ])
+  }
+}
