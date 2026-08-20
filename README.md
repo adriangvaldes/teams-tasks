@@ -382,7 +382,7 @@ curl -s "http://localhost:3333/api/teams?limit=2" | jq
       "name": "Design System",
       "colorHex": "#DB2777",
       "description": "Componentes, tokens e acessibilidade",
-      "taskCount": 2,
+      "taskCount": 3,
       "createdAt": "2026-08-20T18:04:11.201Z",
       "updatedAt": "2026-08-20T18:04:11.201Z"
     },
