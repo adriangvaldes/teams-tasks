@@ -1,6 +1,7 @@
 import {
-  keepPreviousData,
+  type InfiniteData,
   type QueryClient,
+  useInfiniteQuery,
   useMutation,
   useQuery,
   useQueryClient,
@@ -15,12 +16,41 @@ import { queryKeys } from '@/api/query-keys'
 import { type TaskListFilters, tasksApi } from '@/api/tasks.api'
 import type { ItemResponse, ListResponse } from '@/api/types'
 
+export const TASKS_PAGE_SIZE = 20
+
+type TaskPages = InfiniteData<ListResponse<TaskDTO>>
+
+/**
+ * Listagem paginada. `useInfiniteQuery` sobre limit/offset é o que permite o
+ * "carregar mais" da tela consumindo a mesma paginação que a API expõe.
+ */
 export function useTasks(filters: TaskListFilters = {}) {
-  return useQuery({
+  return useInfiniteQuery({
     queryKey: queryKeys.tasks.list(filters),
-    queryFn: ({ signal }) => tasksApi.list(filters, signal),
-    placeholderData: keepPreviousData,
+    queryFn: ({ pageParam, signal }) =>
+      tasksApi.list(
+        { ...filters, limit: TASKS_PAGE_SIZE, offset: pageParam },
+        signal,
+      ),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) =>
+      lastPage.meta.hasMore
+        ? lastPage.meta.offset + lastPage.meta.limit
+        : undefined,
   })
+}
+
+/** Achata as páginas e expõe o total, que vem do meta da API. */
+export function flattenTaskPages(pages: TaskPages | undefined): {
+  tasks: TaskDTO[]
+  total: number
+} {
+  if (!pages) return { tasks: [], total: 0 }
+
+  return {
+    tasks: pages.pages.flatMap((page) => page.data),
+    total: pages.pages[0]?.meta.total ?? 0,
+  }
 }
 
 export function useTask(taskId: string | undefined) {
@@ -37,6 +67,7 @@ export function useCreateTask() {
   return useMutation({
     mutationFn: (body: CreateTaskBody) => tasksApi.create(body),
     onSuccess: (created) => {
+      // Semeia o detalhe: navegar para a tarefa recém-criada não mostra loading.
       queryClient.setQueryData<ItemResponse<TaskDTO>>(
         queryKeys.tasks.detail(created.data.id),
         created,
@@ -67,18 +98,17 @@ export function useUpdateTask(taskId: string) {
 /**
  * Ação rápida com OPTIMISTIC UPDATE.
  *
- * O usuário toca no círculo e a UI responde imediatamente; a requisição corre
- * atrás. Se falhar, o estado anterior é restaurado a partir do snapshot.
+ * O usuário toca no círculo e a UI responde na hora; a requisição corre atrás.
+ * Se falhar, o estado anterior é restaurado a partir do snapshot.
  *
- * Duas sutilezas que fazem a diferença entre "otimista" e "otimista e correto":
+ * Duas sutilezas separam "otimista" de "otimista e correto":
  *
- * 1. `isOverdue` é recalculado localmente. Uma tarefa concluída não está
- *    atrasada, e sem isso o rótulo vermelho ficaria na tela até a revalidação.
+ * 1. `isOverdue` é recalculado localmente. Tarefa concluída não está atrasada,
+ *    e sem isso o rótulo vermelho ficaria na tela até a revalidação.
  *
- * 2. Listas FILTRADAS por status têm o item removido. O filtro está na própria
- *    query key, então é possível saber que numa lista "Pendente" a tarefa que
- *    acabou de virar "Concluída" não pertence mais - em vez de deixá-la visível
- *    até o invalidate chegar.
+ * 2. Listas FILTRADAS por status têm o item REMOVIDO, não apenas atualizado.
+ *    O filtro está na própria query key, então dá para saber que, numa lista
+ *    "Pendente", a tarefa que acabou de virar "Concluída" não pertence mais.
  */
 export function useChangeTaskStatus() {
   const queryClient = useQueryClient()
@@ -144,7 +174,7 @@ export function useDeleteTask() {
 
       const snapshot = snapshotTaskQueries(queryClient)
 
-      removeTaskFromLists(queryClient, taskId)
+      patchTaskInLists(queryClient, taskId, null)
 
       return { snapshot }
     },
@@ -184,62 +214,51 @@ function statusFilterOf(queryKey: readonly unknown[]): TaskStatusValue | null {
 
   if (typeof filters !== 'object' || filters === null) return null
 
-  const status = (filters as TaskListFilters).status
-
-  return status ?? null
+  return (filters as TaskListFilters).status ?? null
 }
 
+/**
+ * Aplica uma transformação a uma tarefa em TODAS as listas paginadas em cache.
+ *
+ * `patch === null` remove a tarefa (usado no delete otimista). Um patch que
+ * faça a tarefa deixar de casar com o filtro da lista também a remove daquela
+ * lista — e o meta.total é ajustado em todas as páginas, porque é a primeira
+ * delas que a tela usa para mostrar a contagem.
+ */
 function patchTaskInLists(
   queryClient: QueryClient,
   taskId: string,
-  patch: (task: TaskDTO) => TaskDTO,
+  patch: ((task: TaskDTO) => TaskDTO) | null,
 ): void {
-  const lists = queryClient.getQueriesData<ListResponse<TaskDTO>>({
+  const lists = queryClient.getQueriesData<TaskPages>({
     queryKey: queryKeys.tasks.lists(),
   })
 
   for (const [key, current] of lists) {
     if (!current) continue
 
-    const index = current.data.findIndex((task) => task.id === taskId)
-    if (index < 0) continue
+    const existing = current.pages
+      .flatMap((page) => page.data)
+      .find((task) => task.id === taskId)
 
-    const existing = current.data[index]
     if (!existing) continue
 
-    const updated = patch(existing)
+    const updated = patch ? patch(existing) : null
     const statusFilter = statusFilterOf(key)
+    const shouldRemove =
+      updated === null ||
+      (statusFilter !== null && updated.status !== statusFilter)
 
-    // A tarefa deixou de casar com o filtro desta lista: sai dela.
-    if (statusFilter && updated.status !== statusFilter) {
-      queryClient.setQueryData<ListResponse<TaskDTO>>(key, {
-        data: current.data.filter((task) => task.id !== taskId),
-        meta: { ...current.meta, total: Math.max(0, current.meta.total - 1) },
-      })
-      continue
-    }
-
-    const next = [...current.data]
-    next[index] = updated
-
-    queryClient.setQueryData<ListResponse<TaskDTO>>(key, {
+    queryClient.setQueryData<TaskPages>(key, {
       ...current,
-      data: next,
+      pages: current.pages.map((page) => ({
+        data: shouldRemove
+          ? page.data.filter((task) => task.id !== taskId)
+          : page.data.map((task) => (task.id === taskId ? updated : task)),
+        meta: shouldRemove
+          ? { ...page.meta, total: Math.max(0, page.meta.total - 1) }
+          : page.meta,
+      })),
     })
   }
-}
-
-function removeTaskFromLists(queryClient: QueryClient, taskId: string): void {
-  queryClient.setQueriesData<ListResponse<TaskDTO>>(
-    { queryKey: queryKeys.tasks.lists() },
-    (current) => {
-      if (!current) return current
-      if (!current.data.some((task) => task.id === taskId)) return current
-
-      return {
-        data: current.data.filter((task) => task.id !== taskId),
-        meta: { ...current.meta, total: Math.max(0, current.meta.total - 1) },
-      }
-    },
-  )
 }
