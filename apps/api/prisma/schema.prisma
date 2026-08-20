@@ -1,0 +1,75 @@
+// Modelo de persistencia. Note que este arquivo descreve APENAS o formato no banco:
+// as regras de negocio vivem em src/domain e nao dependem deste schema.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum TaskStatus {
+  PENDING
+  IN_PROGRESS
+  DONE
+
+  @@map("task_status")
+}
+
+model Team {
+  id String @id @db.Uuid
+
+  name        String  @unique @db.VarChar(60)
+  colorHex    String  @map("color_hex") @db.Char(7)
+  description String? @db.VarChar(500)
+
+  // Timestamps vem do dominio (porta Clock), nao de @default(now()).
+  // Isso mantem o tempo injetavel e os testes deterministicos.
+  createdAt DateTime @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @map("updated_at") @db.Timestamptz(3)
+
+  tasks TaskTeam[]
+
+  @@index([name])
+  @@index([createdAt])
+  @@map("teams")
+}
+
+model Task {
+  id String @id @db.Uuid
+
+  title       String     @db.VarChar(120)
+  description String?    @db.VarChar(2000)
+  status      TaskStatus @default(PENDING)
+  dueDate     DateTime?  @map("due_date") @db.Timestamptz(3)
+
+  createdAt DateTime @map("created_at") @db.Timestamptz(3)
+  updatedAt DateTime @map("updated_at") @db.Timestamptz(3)
+
+  teams TaskTeam[]
+
+  @@index([status])
+  @@index([dueDate])
+  @@index([createdAt])
+  @@index([title])
+  @@map("tasks")
+}
+
+/// Tabela de juncao EXPLICITA (e nao relacao implicita do Prisma).
+/// Motivo: permite atributos no vinculo (assignedAt) e torna o M:N visivel
+/// no modelo logico documentado no README.
+model TaskTeam {
+  taskId String @map("task_id") @db.Uuid
+  teamId String @map("team_id") @db.Uuid
+
+  assignedAt DateTime @map("assigned_at") @db.Timestamptz(3)
+
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@id([taskId, teamId])
+  @@index([teamId])
+  @@map("task_teams")
+}
