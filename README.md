@@ -69,6 +69,14 @@ cp apps/api/.env.example apps/api/.env
 pnpm setup
 ```
 
+> **Se você já tem PostgreSQL instalado na máquina, leia isto antes.** O serviço nativo ocupa a 5432, e o Docker no Windows **não falha de forma visível** nessa colisão: `docker ps` reporta `0.0.0.0:5432->5432/tcp`, mas quem atende `localhost:5432` continua sendo o servidor nativo. O sintoma é traiçoeiro — tudo funciona, contra o banco errado. Para checar:
+>
+> ```bash
+> docker compose exec postgres psql -U postgres -d teams_tasks -c "select version()"
+> ```
+>
+> Se a versão não for a 16, publique o container em outra porta: crie um `.env` na **raiz** com `POSTGRES_PORT=5433`, ajuste a porta no `DATABASE_URL` de `apps/api/.env` e rode `pnpm db:reset`.
+
 Depois, em **dois terminais**:
 
 ```bash

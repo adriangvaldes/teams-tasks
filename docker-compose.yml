@@ -8,7 +8,13 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: teams_tasks
     ports:
-      - '5432:5432'
+      # Porta do HOST configuravel. Se voce ja tem um PostgreSQL instalado na
+      # maquina, ele provavelmente ocupa a 5432 - e o Docker no Windows nao
+      # falha de forma visivel nesse caso: ele reporta a porta como publicada,
+      # mas quem atende `localhost:5432` continua sendo o servidor nativo.
+      # O sintoma e traicoeiro: tudo "funciona", contra o banco errado.
+      # Nesse cenario, defina POSTGRES_PORT=5433 no .env da raiz.
+      - '${POSTGRES_PORT:-5432}:5432'
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
