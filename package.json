@@ -9,19 +9,22 @@
   },
   "packageManager": "pnpm@11.22.0",
   "scripts": {
-    "db:up": "docker compose up -d",
-    "db:down": "docker compose down",
-    "db:reset": "docker compose down -v && docker compose up -d",
-    "db:migrate": "pnpm --filter @teams-tasks/api db:migrate",
-    "seed": "pnpm --filter @teams-tasks/api seed",
+    "setup": "pnpm install && pnpm db:up && pnpm db:migrate && pnpm seed",
+    "start": "pnpm --filter @teams-tasks/api start",
+    "dev": "pnpm --filter @teams-tasks/api dev",
     "dev:api": "pnpm --filter @teams-tasks/api dev",
     "dev:mobile": "pnpm --filter @teams-tasks/mobile start",
     "build": "pnpm -r build",
     "test": "pnpm -r test",
+    "test:all": "pnpm --filter @teams-tasks/api test:all && pnpm --filter @teams-tasks/mobile test",
     "typecheck": "pnpm -r typecheck",
     "lint": "biome check apps packages",
-    "setup": "pnpm install && pnpm db:up && pnpm db:migrate && pnpm seed",
-    "format": "biome check --write apps packages"
+    "format": "biome check --write apps packages",
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down",
+    "db:reset": "docker compose down -v && docker compose up -d",
+    "db:migrate": "pnpm --filter @teams-tasks/api db:migrate",
+    "seed": "pnpm --filter @teams-tasks/api seed"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.5.9"

@@ -146,9 +146,11 @@ Na raiz:
 | Script | O que faz |
 |---|---|
 | `pnpm setup` | `install` + `db:up` + `db:migrate` + `seed` |
+| `pnpm start` | API em modo produção (exige `pnpm build` antes) |
 | `pnpm dev:api` | API em watch mode |
 | `pnpm dev:mobile` | Metro bundler |
 | `pnpm test` | Testes de todos os pacotes (suíte unitária) |
+| `pnpm test:all` | Tudo, incluindo integração (exige Docker) |
 | `pnpm typecheck` | `tsc --noEmit` em todos os pacotes |
 | `pnpm lint` | Biome em `apps` e `packages` |
 | `pnpm format` | Biome com `--write` |
@@ -588,19 +590,39 @@ pnpm --filter @teams-tasks/mobile test           # componentes
 
 ## Deploy
 
-A API tem `Dockerfile` multi-stage e `railway.json` prontos. O build é feito **a partir da raiz** do monorepo, porque o contexto precisa incluir `packages/shared`:
+> **Status honesto:** a imagem está pronta e **validada rodando**, mas não há instância publicada. O trial da conta Railway usada expirou durante o desenvolvimento e hospedar exigiria plano pago, então o deploy ficou de fora — é diferencial opcional, e o artefato que ele consumiria está verificado.
+
+O que foi efetivamente exercitado, e não apenas escrito:
 
 ```bash
+# Build a partir da RAIZ: o contexto precisa incluir packages/shared
 docker build -f apps/api/Dockerfile -t teams-tasks-api .
+
+# Rodando contra o Postgres do compose
+docker run --rm --network teams-tasks_default \
+  -e DATABASE_URL="postgresql://postgres:postgres@postgres:5432/teams_tasks?schema=public" \
+  -e NODE_ENV=production -p 3334:3333 teams-tasks-api
+
+curl http://localhost:3334/health/ready
 ```
 
-No Railway: crie o projeto a partir do repositório, adicione um **PostgreSQL**, e a variável `DATABASE_URL` já vem preenchida pelo próprio serviço. O `CMD` aplica `prisma migrate deploy` antes de subir o servidor, e o healthcheck aponta para `/health` (liveness, que não consulta o banco — se consultasse, uma indisponibilidade momentânea do Postgres causaria restart em loop).
+Verificado nesse container: `prisma migrate deploy` aplicou as migrations, o servidor subiu, `/health` e `/health/ready` responderam 200, os endpoints serviram requests com log JSON estruturado, e `SIGTERM` disparou o graceful shutdown.
 
-Com a API publicada, aponte o app para ela em `apps/mobile/.env`:
+### Publicando
+
+`railway.json` já declara builder `DOCKERFILE`, o caminho do Dockerfile e o healthcheck. Com um plano ativo:
 
 ```bash
-EXPO_PUBLIC_API_URL=https://<seu-app>.up.railway.app
+railway init --name teams-tasks
+railway add --database postgres
+railway up
 ```
+
+Depois é só ligar `DATABASE_URL` ao serviço do Postgres (`${{Postgres.DATABASE_URL}}`) e definir `NODE_ENV=production`. O `CMD` aplica as migrations no start — idempotente e não destrutivo, diferente de `migrate dev`, que jamais deve rodar em produção.
+
+O healthcheck aponta para `/health` (liveness, sem tocar no banco) e não para `/health/ready`: se ele consultasse o Postgres, uma indisponibilidade momentânea derrubaria o container em loop de restart.
+
+Com a API publicada, aponte o app para ela criando a variável no EAS (veja a seção de variáveis de ambiente acima) — não em arquivo versionado.
 
 ---
 
