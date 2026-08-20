@@ -2,12 +2,6 @@ packages:
   - 'apps/*'
   - 'packages/*'
 
-allowBuilds:
-  '@prisma/client': set this to true or false
-  '@prisma/engines': set this to true or false
-  esbuild: set this to true or false
-  prisma: set this to true or false
-
 # O pnpm 11 bloqueia postinstall de dependencias por padrao. Declarar a lista
 # aqui (em vez de rodar `pnpm approve-builds` interativamente) mantem a
 # instalacao reprodutivel: `pnpm install` funciona igual em qualquer maquina e no CI.
@@ -16,3 +10,19 @@ onlyBuiltDependencies:
   - '@prisma/engines'
   - esbuild
   - prisma
+  - unrs-resolver
+
+# O pnpm 11 poe em quarentena pacotes publicados nas ultimas ~24h (protecao de
+# supply chain). O Expo publica patches de SDK quase diariamente, entao instalar
+# o SDK 57 atual seria bloqueado. Em vez de desligar a politica para tudo, a
+# excecao fica restrita ao ecossistema Expo/React Native.
+minimumReleaseAgeExclude:
+  - expo
+  - '@expo/*'
+  - 'expo-*'
+  - '@react-native/*'
+  - 'react-native'
+  - 'react-native-*'
+
+allowBuilds:
+  unrs-resolver: set this to true or false
