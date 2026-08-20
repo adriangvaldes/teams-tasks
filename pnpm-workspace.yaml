@@ -1,8 +1,18 @@
 packages:
   - 'apps/*'
   - 'packages/*'
+
 allowBuilds:
   '@prisma/client': set this to true or false
   '@prisma/engines': set this to true or false
   esbuild: set this to true or false
   prisma: set this to true or false
+
+# O pnpm 11 bloqueia postinstall de dependencias por padrao. Declarar a lista
+# aqui (em vez de rodar `pnpm approve-builds` interativamente) mantem a
+# instalacao reprodutivel: `pnpm install` funciona igual em qualquer maquina e no CI.
+onlyBuiltDependencies:
+  - '@prisma/client'
+  - '@prisma/engines'
+  - esbuild
+  - prisma
