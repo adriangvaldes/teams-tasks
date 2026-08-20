@@ -2,6 +2,13 @@
 module.exports = {
   content: ['./app/**/*.{ts,tsx}', './src/**/*.{ts,tsx}'],
   presets: [require('nativewind/preset')],
+
+  // Necessario mesmo sem tema escuro implementado. Sem isto, o NativeWind
+  // lanca "Cannot manually set color scheme" no bundle de DESENVOLVIMENTO
+  // assim que algo consulta o esquema de cores do sistema - e o app abre com
+  // overlay de erro vermelho, apesar de renderizar por tras. O export de
+  // producao nao reclamava, o que tornava a falha invisivel no build.
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
