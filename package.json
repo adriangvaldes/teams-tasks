@@ -1,0 +1,25 @@
+{
+  "name": "teams-tasks",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Monorepo: API REST (Express + arquitetura hexagonal) e app mobile (Expo) para gestao de Times e Tarefas",
+  "engines": {
+    "node": ">=20.11.0",
+    "pnpm": ">=9"
+  },
+  "packageManager": "pnpm@11.22.0",
+  "scripts": {
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down",
+    "db:reset": "docker compose down -v && docker compose up -d",
+    "db:migrate": "pnpm --filter @teams-tasks/api db:migrate",
+    "seed": "pnpm --filter @teams-tasks/api seed",
+    "dev:api": "pnpm --filter @teams-tasks/api dev",
+    "dev:mobile": "pnpm --filter @teams-tasks/mobile start",
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "pnpm -r lint",
+    "setup": "pnpm install && pnpm db:up && pnpm db:migrate && pnpm seed"
+  }
+}
