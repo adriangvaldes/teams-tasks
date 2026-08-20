@@ -12,7 +12,12 @@ WORKDIR /app
 # Manifests primeiro: enquanto as dependencias nao mudam, esta camada e cache.
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 COPY packages/shared/package.json ./packages/shared/
-COPY apps/api/package.json ./apps/api/
+COPY apps/api/package.json apps/api/prisma.config.ts ./apps/api/
+
+# O postinstall da API roda `prisma generate`, que precisa do schema. Por isso
+# o schema entra ANTES do install, e nao junto com o resto do codigo-fonte.
+# O custo em cache e baixo: o schema muda muito menos que o codigo.
+COPY apps/api/prisma ./apps/api/prisma
 
 RUN pnpm install --frozen-lockfile
 
@@ -28,7 +33,8 @@ RUN pnpm --filter @teams-tasks/api build
 FROM node:22-alpine AS runtime
 
 RUN apk add --no-cache openssl
-RUN corepack enable
+
+# Sem corepack aqui: o runtime nao usa pnpm (veja o CMD).
 
 WORKDIR /app
 
@@ -54,4 +60,10 @@ EXPOSE 3333
 
 # `migrate deploy` no start mantem o schema em dia a cada deploy. E idempotente
 # e nunca destrutivo - diferente de `migrate dev`, que jamais deve rodar aqui.
-CMD ["sh", "-c", "pnpm exec prisma migrate deploy && node dist/main.js"]
+#
+# O binario do Prisma e invocado DIRETO, e nao via `pnpm exec`: o pnpm faz um
+# check de integridade do node_modules antes de executar qualquer coisa e, como
+# a imagem de runtime nao carrega os manifests de todo o workspace, ele concluia
+# que a arvore estava desatualizada e tentava rodar `pnpm install` dentro do
+# container - falhando por nao ter rede.
+CMD ["sh", "-c", "/app/node_modules/.bin/prisma migrate deploy && node dist/main.js"]
