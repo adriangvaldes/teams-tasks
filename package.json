@@ -19,7 +19,11 @@
     "build": "pnpm -r build",
     "test": "pnpm -r test",
     "typecheck": "pnpm -r typecheck",
-    "lint": "pnpm -r lint",
-    "setup": "pnpm install && pnpm db:up && pnpm db:migrate && pnpm seed"
+    "lint": "biome check apps packages",
+    "setup": "pnpm install && pnpm db:up && pnpm db:migrate && pnpm seed",
+    "format": "biome check --write apps packages"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.5.9"
   }
 }
