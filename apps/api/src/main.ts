@@ -40,6 +40,25 @@ async function bootstrap(): Promise<void> {
 
   process.on('SIGTERM', () => shutdown('SIGTERM'))
   process.on('SIGINT', () => shutdown('SIGINT'))
+
+  process.on('unhandledRejection', (reason) => {
+    logger.error('Promise rejeitada sem tratamento', {
+      reason: reason instanceof Error ? reason.message : String(reason),
+      stack: reason instanceof Error ? reason.stack : undefined,
+    })
+
+    shutdown('unhandledRejection')
+  })
+
+  process.on('uncaughtException', (error) => {
+    logger.error('Excecao nao capturada', {
+      error: error.message,
+      stack: error.stack,
+    })
+
+    server.close(() => process.exit(1))
+    setTimeout(() => process.exit(1), 2_000).unref()
+  })
 }
 
 bootstrap().catch((error: unknown) => {

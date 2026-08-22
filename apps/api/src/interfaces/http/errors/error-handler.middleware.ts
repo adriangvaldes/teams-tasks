@@ -16,6 +16,47 @@ const DOMAIN_KIND_TO_HTTP: Record<
   CONFLICT: { status: 409, code: ERROR_CODES.CONFLICT },
 }
 
+const BODY_PARSER_FAILURES: Record<
+  string,
+  { status: number; message: string }
+> = {
+  'entity.parse.failed': {
+    status: 400,
+    message: 'Corpo da requisicao nao e um JSON valido',
+  },
+  'entity.too.large': {
+    status: 413,
+    message: 'Corpo da requisicao excede o limite de 1 MB',
+  },
+  'request.aborted': {
+    status: 400,
+    message: 'A requisicao foi interrompida antes de ser recebida por inteiro',
+  },
+  'encoding.unsupported': {
+    status: 415,
+    message: 'Codificacao do corpo nao suportada',
+  },
+  'charset.unsupported': {
+    status: 415,
+    message: 'Charset do corpo nao suportado',
+  },
+}
+
+interface ParserError {
+  type?: unknown
+}
+
+function asBodyParserFailure(
+  error: unknown,
+): { status: number; message: string } | undefined {
+  if (typeof error !== 'object' || error === null) return undefined
+
+  const { type } = error as ParserError
+  if (typeof type !== 'string') return undefined
+
+  return BODY_PARSER_FAILURES[type]
+}
+
 export function createErrorHandler(logger: Logger): ErrorRequestHandler {
   return (error, req, res, _next) => {
     if (error instanceof RequestValidationError) {
@@ -24,6 +65,13 @@ export function createErrorHandler(logger: Logger): ErrorRequestHandler {
         .json(
           envelope(ERROR_CODES.VALIDATION_ERROR, error.message, error.details),
         )
+    }
+
+    const parserFailure = asBodyParserFailure(error)
+    if (parserFailure) {
+      return res
+        .status(parserFailure.status)
+        .json(envelope(ERROR_CODES.VALIDATION_ERROR, parserFailure.message))
     }
 
     if (error instanceof DomainError) {

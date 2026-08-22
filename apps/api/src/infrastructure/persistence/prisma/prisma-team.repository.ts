@@ -5,10 +5,15 @@ import type {
   TeamRepository,
 } from '../../../application/ports/out/team-repository.port'
 import type { UniqueEntityId } from '../../../domain/shared/unique-entity-id'
+import {
+  TeamNameAlreadyInUseError,
+  TeamNotFoundError,
+} from '../../../domain/team/errors/team-errors'
 import type { Team } from '../../../domain/team/team.entity'
 import type { TeamName } from '../../../domain/team/value-objects/team-name.vo'
 import { PrismaTeamMapper } from './mappers/prisma-team.mapper'
 import type { PrismaClient } from './prisma-client'
+import { isPrismaError, PRISMA_ERROR, violatedFields } from './prisma-errors'
 
 export class PrismaTeamRepository implements TeamRepository {
   constructor(private readonly prisma: PrismaClient) {}
@@ -54,19 +59,53 @@ export class PrismaTeamRepository implements TeamRepository {
   }
 
   async create(team: Team): Promise<void> {
-    await this.prisma.team.create({
-      data: PrismaTeamMapper.toPersistence(team),
-    })
+    try {
+      await this.prisma.team.create({
+        data: PrismaTeamMapper.toPersistence(team),
+      })
+    } catch (error) {
+      throw PrismaTeamRepository.translate(error, team)
+    }
   }
 
   async update(team: Team): Promise<void> {
     const { id, ...data } = PrismaTeamMapper.toPersistence(team)
 
-    await this.prisma.team.update({ where: { id }, data })
+    try {
+      await this.prisma.team.update({ where: { id }, data })
+    } catch (error) {
+      throw PrismaTeamRepository.translate(error, team)
+    }
   }
 
   async delete(id: UniqueEntityId): Promise<void> {
-    await this.prisma.team.delete({ where: { id: id.value } })
+    try {
+      await this.prisma.team.delete({ where: { id: id.value } })
+    } catch (error) {
+      if (isPrismaError(error, PRISMA_ERROR.RECORD_NOT_FOUND)) {
+        throw new TeamNotFoundError(id.value)
+      }
+      throw error
+    }
+  }
+
+  /**
+   * A verificacao de nome duplicado feita no caso de uso resolve o caso comum,
+   * mas nao elimina a corrida entre duas requisicoes simultaneas. Sem esta
+   * traducao, esse encontro viraria 500 em vez do 409 que o cliente espera.
+   */
+  private static translate(error: unknown, team: Team): unknown {
+    if (isPrismaError(error, PRISMA_ERROR.UNIQUE_VIOLATION)) {
+      if (violatedFields(error).some((field) => field.includes('name'))) {
+        return new TeamNameAlreadyInUseError(team.name.value)
+      }
+    }
+
+    if (isPrismaError(error, PRISMA_ERROR.RECORD_NOT_FOUND)) {
+      return new TeamNotFoundError(team.id.value)
+    }
+
+    return error
   }
 
   private static buildWhere(
