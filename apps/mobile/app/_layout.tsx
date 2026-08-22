@@ -7,6 +7,7 @@ import { StatusBar } from 'expo-status-bar'
 import { useEffect, useState } from 'react'
 import { AppState, type AppStateStatus, Platform } from 'react-native'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
+import { AppErrorBoundary } from '@/components/error-boundary'
 import { createQueryClient } from '@/lib/query-client'
 import { appStorage } from '@/storage'
 import { createQueryPersister } from '@/storage/query-persister'
@@ -25,6 +26,8 @@ function useAppStateFocus(): void {
     return () => subscription.remove()
   }, [])
 }
+
+export { AppErrorBoundary as ErrorBoundary }
 
 export default function RootLayout() {
   const [queryClient] = useState(createQueryClient)
