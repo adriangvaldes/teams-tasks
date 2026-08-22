@@ -18,7 +18,6 @@ export function formatDateInput(isoDate: string): string {
   return shortDateFormatter.format(new Date(isoDate))
 }
 
-/** Diferença em dias inteiros, comparando à meia-noite para não contar horas. */
 function diffInDays(target: Date, reference: Date): number {
   const startOfTarget = Date.UTC(
     target.getUTCFullYear(),
@@ -36,18 +35,10 @@ function diffInDays(target: Date, reference: Date): number {
 
 interface DueDateLabelOptions {
   now?: Date
-  /** Tarefa concluída: o prazo passa a ser histórico, não urgência. */
+
   isDone?: boolean
 }
 
-/**
- * Rótulo do prazo em linguagem natural. "Vence em 3 dias" comunica urgência
- * bem melhor do que "01/09/2026" numa lista que se lê de relance.
- *
- * Para tarefa CONCLUÍDA o texto muda de registro. Dizer "Atrasada há 5 dias"
- * numa tarefa já entregue é simplesmente falso: o prazo virou informação
- * histórica, e a frase de urgência fazia o usuário achar que havia pendência.
- */
 export function formatDueDateLabel(
   isoDate: string | null,
   { now = new Date(), isDone = false }: DueDateLabelOptions = {},
@@ -68,10 +59,6 @@ export function formatDueDateLabel(
   return `Vence em ${formatDate(isoDate)}`
 }
 
-/**
- * Converte a data digitada (dd/mm/aaaa) em ISO 8601, que é o formato do
- * contrato da API. Devolve null quando o texto ainda não forma uma data válida.
- */
 export function parseDateInput(value: string): string | null {
   const match = value.trim().match(/^(\d{2})\/(\d{2})\/(\d{4})$/)
   if (!match) return null
@@ -83,14 +70,12 @@ export function parseDateInput(value: string): string | null {
 
   if (Number.isNaN(parsed.getTime())) return null
 
-  // Rejeita datas inexistentes como 31/02, que o Date "corrige" silenciosamente.
   if (parsed.getUTCDate() !== Number(day)) return null
   if (parsed.getUTCMonth() !== Number(month) - 1) return null
 
   return parsed.toISOString()
 }
 
-/** Máscara progressiva dd/mm/aaaa conforme o usuário digita. */
 export function maskDateInput(value: string): string {
   const digits = value.replace(/\D/g, '').slice(0, 8)
 

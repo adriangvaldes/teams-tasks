@@ -56,8 +56,6 @@ export function Button({
   return (
     <Pressable
       accessibilityRole="button"
-      // Leitor de tela precisa saber que o botão está ocupado, não só
-      // que ficou visualmente diferente.
       accessibilityState={{ disabled: isDisabled, busy: loading }}
       accessibilityLabel={label}
       disabled={isDisabled}

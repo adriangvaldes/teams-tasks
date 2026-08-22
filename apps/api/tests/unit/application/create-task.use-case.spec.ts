@@ -76,7 +76,6 @@ describe('CreateTask', () => {
     await expect(promise).rejects.toThrow(TeamsNotFoundError)
     await expect(promise).rejects.toThrow(TEAM_INEXISTENTE)
 
-    // Integridade referencial e checada ANTES de persistir.
     expect(taskRepository.items).toHaveLength(0)
   })
 

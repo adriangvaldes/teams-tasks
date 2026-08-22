@@ -7,12 +7,6 @@ import { ErrorState, LoadingState } from '@/components/ui/states'
 import { useDeleteTeam, useTeam } from '@/hooks/use-teams'
 import { readableTextColor, withAlpha } from '@/lib/color'
 
-/**
- * Tarefas de UM time — a tela que o requisito "tocar em um time filtra tarefas
- * por time" abre. Reusa o mesmo componente TaskList da aba global, passando
- * apenas o teamId: o filtro vai como query param para a API, não como filtragem
- * no cliente.
- */
 export default function TeamTasksScreen() {
   const router = useRouter()
   const { id } = useLocalSearchParams<{ id: string }>()
@@ -136,7 +130,6 @@ export default function TeamTasksScreen() {
       <Pressable
         accessibilityRole="button"
         accessibilityLabel="Nova tarefa neste time"
-        // O time já vem selecionado no formulário.
         onPress={() => router.push(`/tasks/new?teamId=${team.id}`)}
         className="absolute bottom-6 right-5 h-14 w-14 items-center justify-center rounded-full bg-brand-600 active:bg-brand-700"
         style={{

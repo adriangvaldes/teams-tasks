@@ -21,10 +21,6 @@ export interface NewTeamProps {
 }
 
 export class Team extends Entity<TeamProps> {
-  /**
-   * Cria um time novo. `id` e `now` sao injetados (portas IdGenerator e Clock)
-   * em vez de gerados aqui: e o que torna a entidade deterministica em teste.
-   */
   static create(props: NewTeamProps, id: UniqueEntityId, now: Date): Team {
     return new Team(
       {
@@ -38,7 +34,6 @@ export class Team extends Entity<TeamProps> {
     )
   }
 
-  /** Reidrata um time ja persistido. Usado exclusivamente pelos mappers. */
   static reconstitute(props: TeamProps, id: UniqueEntityId): Team {
     return new Team(props, id)
   }

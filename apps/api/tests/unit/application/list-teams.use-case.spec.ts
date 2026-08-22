@@ -40,7 +40,6 @@ describe('ListTeams', () => {
 
     const ids = new SequentialIdGenerator()
 
-    // 2 tarefas no Alpha, 1 no Design, nenhuma na Plataforma.
     for (const teamIds of [[TEAM_ALPHA], [TEAM_ALPHA], [TEAM_DESIGN]]) {
       await taskRepository.create(
         Task.create(

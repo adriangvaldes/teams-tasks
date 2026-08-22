@@ -2,12 +2,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { type RenderOptions, render } from '@testing-library/react-native'
 import type { ReactElement, ReactNode } from 'react'
 
-/**
- * QueryClient de teste: sem retry e sem cache entre casos.
- *
- * Retry ligado faria um teste de erro esperar os backoffs antes de assertar, e
- * cache compartilhado deixaria um teste enxergar dados semeados por outro.
- */
 export function createTestQueryClient(): QueryClient {
   return new QueryClient({
     defaultOptions: {
@@ -17,10 +11,6 @@ export function createTestQueryClient(): QueryClient {
   })
 }
 
-/**
- * `render` é ASSÍNCRONO no @testing-library/react-native 14 (mudou junto com o
- * modo concorrente do React 19), então este helper também é.
- */
 export async function renderWithProviders(
   ui: ReactElement,
   options?: Omit<RenderOptions, 'wrapper'>,
@@ -38,7 +28,6 @@ export async function renderWithProviders(
   return { queryClient, ...result }
 }
 
-/** Resposta de listagem no formato do envelope da API. */
 export function listResponse<TItem>(items: TItem[]) {
   return {
     data: items,
@@ -51,11 +40,6 @@ export function listResponse<TItem>(items: TItem[]) {
   }
 }
 
-/**
- * Substitui o fetch global por um roteador simples de URL → payload.
- * Mais legível que encadear mockResolvedValueOnce quando a tela faz mais de
- * uma requisição e a ordem não é garantida.
- */
 export function mockFetchRoutes(
   routes: Array<{ match: string; status?: number; body: unknown }>,
 ): jest.Mock {

@@ -5,10 +5,6 @@ import type { TeamSummaryOutput } from '../dtos/team.dto'
 import { TeamOutputMapper } from './team-output.mapper'
 
 export const TaskOutputMapper = {
-  /**
-   * @param teamsById times ja carregados em lote pelo use case. Recebe-los
-   *   prontos (em vez de buscar aqui) e o que evita N+1 na listagem.
-   */
   toOutput(
     task: Task,
     teamsById: ReadonlyMap<string, Team>,

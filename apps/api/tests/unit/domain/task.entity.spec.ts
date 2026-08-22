@@ -83,7 +83,6 @@ describe('Task', () => {
 
       task.changeStatus('DONE', later)
 
-      // Protege a UI: duplo toque na acao rapida nao conta como alteracao.
       expect(task.updatedAt).toEqual(NOW)
     })
   })

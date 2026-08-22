@@ -1,11 +1,6 @@
 import type { Team } from '../../domain/team/team.entity'
 import type { TeamOutput, TeamSummaryOutput } from '../dtos/team.dto'
 
-/**
- * Travessia dominio -> aplicacao. Aqui os value objects sao "desembrulhados"
- * para tipos primitivos; a partir deste ponto ninguem mais precisa conhecer
- * TeamName ou ColorHex.
- */
 export const TeamOutputMapper = {
   toOutput(team: Team, taskCount: number): TeamOutput {
     return {

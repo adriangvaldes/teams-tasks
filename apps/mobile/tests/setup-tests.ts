@@ -2,11 +2,6 @@ import { configure } from '@testing-library/react-native'
 
 configure({ asyncUtilTimeout: 5000 })
 
-/**
- * O MMKV é módulo nativo e não existe no ambiente de teste. O adapter real já
- * cai para AsyncStorage quando o require falha, mas mockar aqui evita o custo
- * de disparar e capturar essa exceção em cada suíte.
- */
 jest.mock('react-native-mmkv', () => ({
   createMMKV: () => {
     throw new Error('MMKV indisponível em ambiente de teste')

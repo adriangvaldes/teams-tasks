@@ -12,10 +12,6 @@ interface FilterChipsProps<TValue extends string> {
   accessibilityLabel: string
 }
 
-/**
- * Linha de filtros rolável horizontalmente. Usa `accessibilityState.selected`
- * em vez de só mudar a cor, para que o filtro ativo seja anunciado.
- */
 export function FilterChips<TValue extends string>({
   options,
   selected,

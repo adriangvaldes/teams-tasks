@@ -4,7 +4,6 @@ import { Task } from '../../../../domain/task/task.entity'
 import { TaskStatus } from '../../../../domain/task/value-objects/task-status.vo'
 import { TaskTitle } from '../../../../domain/task/value-objects/task-title.vo'
 
-/** Linha de tarefa com os vinculos de time carregados junto. */
 export type PrismaTaskWithTeams = PrismaTask & {
   teams: Pick<TaskTeam, 'teamId'>[]
 }
@@ -25,10 +24,6 @@ export const PrismaTaskMapper = {
     )
   },
 
-  /**
-   * Apenas as colunas da tabela `tasks`. Os vinculos com times moram em
-   * `task_teams` e sao tratados pelo repositorio, que sabe fazer o diff.
-   */
   toPersistence(task: Task): PrismaTask {
     return {
       id: task.id.value,

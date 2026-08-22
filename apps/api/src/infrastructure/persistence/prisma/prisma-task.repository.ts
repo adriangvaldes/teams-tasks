@@ -9,7 +9,6 @@ import type { Task } from '../../../domain/task/task.entity'
 import { PrismaTaskMapper } from './mappers/prisma-task.mapper'
 import type { PrismaClient } from './prisma-client'
 
-/** Sempre carregamos os ids dos times: a entidade Task nao existe sem eles. */
 const WITH_TEAM_LINKS = { teams: { select: { teamId: true } } } as const
 
 export class PrismaTaskRepository implements TaskRepository {
@@ -46,7 +45,6 @@ export class PrismaTaskRepository implements TaskRepository {
   ): Promise<Map<string, number>> {
     if (teamIds.length === 0) return new Map()
 
-    // groupBy resolve a contagem de TODOS os times em uma consulta.
     const rows = await this.prisma.taskTeam.groupBy({
       by: ['teamId'],
       where: { teamId: { in: teamIds.map((id) => id.value) } },
@@ -72,13 +70,6 @@ export class PrismaTaskRepository implements TaskRepository {
     })
   }
 
-  /**
-   * Atualiza a tarefa e RECONCILIA os vinculos de time numa unica transacao.
-   *
-   * O diff (em vez de apagar tudo e recriar) preserva assigned_at dos vinculos
-   * que continuam existindo, que e justamente o motivo da tabela de juncao ser
-   * explicita.
-   */
   async update(task: Task): Promise<void> {
     const { id, ...data } = PrismaTaskMapper.toPersistence(task)
     const nextTeamIds = task.teamIds.map((teamId) => teamId.value)
@@ -86,7 +77,6 @@ export class PrismaTaskRepository implements TaskRepository {
     await this.prisma.$transaction(async (tx) => {
       await tx.task.update({ where: { id }, data })
 
-      // `notIn: []` no Prisma nao filtra nada, entao o caso vazio e explicito.
       await tx.taskTeam.deleteMany({
         where:
           nextTeamIds.length === 0
@@ -120,7 +110,6 @@ export class PrismaTaskRepository implements TaskRepository {
       where.status = criteria.status.value
     }
 
-    // Filtro por time atravessa a tabela de juncao.
     if (criteria.teamId) {
       where.teams = { some: { teamId: criteria.teamId.value } }
     }
@@ -141,13 +130,10 @@ export class PrismaTaskRepository implements TaskRepository {
     const { field, direction } = criteria.sort
 
     return [
-      // Datas nulas por ultimo: uma tarefa sem prazo nao deve aparecer antes
-      // das que tem prazo definido ao ordenar por dueDate.
       field === 'dueDate'
         ? { dueDate: { sort: direction, nulls: 'last' } }
         : { [field]: direction },
-      // Desempate estavel: sem isso a paginacao pode repetir ou perder itens
-      // quando varias linhas tem o mesmo valor no campo ordenado.
+
       { id: 'asc' },
     ]
   }

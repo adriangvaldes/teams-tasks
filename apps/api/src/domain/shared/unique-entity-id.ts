@@ -3,10 +3,6 @@ import { InvalidUuidError } from './domain-errors'
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 
-/**
- * Identidade de entidade. Existe para que assinaturas como
- * `findById(id: UniqueEntityId)` nao aceitem qualquer string por acidente.
- */
 export class UniqueEntityId {
   private constructor(private readonly _value: string) {}
 

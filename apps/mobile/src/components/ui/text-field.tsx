@@ -8,13 +8,6 @@ interface TextFieldProps extends TextInputProps {
   required?: boolean
 }
 
-/**
- * Campo de formulário com rótulo, erro e dica.
- *
- * O `forwardRef` existe para que o react-hook-form consiga focar o campo
- * inválido, e o `accessibilityLabel` inclui o rótulo porque, sem isso, o
- * leitor de tela anuncia apenas o texto digitado.
- */
 export const TextField = forwardRef<TextInput, TextFieldProps>(
   function TextField(
     { label, error, hint, required = false, ...inputProps },

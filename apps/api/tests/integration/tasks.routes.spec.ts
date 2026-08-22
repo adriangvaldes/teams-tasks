@@ -185,7 +185,7 @@ describe('PATCH /api/tasks/:id/status', () => {
 
     expect(response.status).toBe(200)
     expect(response.body.data.status).toBe('DONE')
-    // O chip de time continua na resposta: a UI nao precisa refazer o fetch.
+
     expect(response.body.data.teams).toHaveLength(1)
   })
 

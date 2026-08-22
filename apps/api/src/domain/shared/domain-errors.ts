@@ -1,10 +1,3 @@
-/**
- * Categoria semantica do erro de dominio.
- *
- * Repare que NAO existe status HTTP aqui: o dominio nao conhece HTTP. A traducao
- * para status code e feita no adapter de entrada (interfaces/http/errors),
- * respeitando a regra de dependencia da arquitetura hexagonal.
- */
 export type DomainErrorKind = 'VALIDATION' | 'NOT_FOUND' | 'CONFLICT'
 
 export interface DomainErrorDetail {

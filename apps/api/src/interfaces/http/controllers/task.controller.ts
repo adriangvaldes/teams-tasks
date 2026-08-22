@@ -88,10 +88,6 @@ export class TaskController {
     },
   )
 
-  /**
-   * Acao rapida da UI. PATCH em um sub-recurso deixa a intencao explicita e
-   * torna o payload minimo - o que importa para o optimistic update do mobile.
-   */
   readonly changeStatus: RequestHandler = createHandler(
     { params: idParamsSchema, body: changeTaskStatusBodySchema },
     async ({ params, body }) => {

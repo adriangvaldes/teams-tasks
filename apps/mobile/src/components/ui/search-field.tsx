@@ -29,7 +29,6 @@ export function SearchField({
           accessibilityRole="button"
           accessibilityLabel="Limpar busca"
           onPress={() => onChangeText('')}
-          // Alvo de toque generoso: o X é pequeno demais para o dedo.
           hitSlop={12}
         >
           <Text className="text-lg text-ink-subtle">×</Text>

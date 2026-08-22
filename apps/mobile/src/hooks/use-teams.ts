@@ -16,7 +16,6 @@ import type { ItemResponse, ListResponse } from '@/api/types'
 
 export const TEAMS_PAGE_SIZE = 20
 
-/** Teto do seletor de times: acima disso viraria busca com paginação. */
 const TEAM_OPTIONS_LIMIT = 100
 
 type TeamPages = InfiniteData<ListResponse<TeamDTO>>
@@ -49,14 +48,6 @@ export function flattenTeamPages(pages: TeamPages | undefined): {
   }
 }
 
-/**
- * Lista achatada para o seletor do formulário de tarefa.
- *
- * Namespace de cache próprio (`options`) porque o formato é uma página única, e
- * não InfiniteData: separar evita que as escritas otimistas das listagens
- * paginadas tropecem nesta estrutura. Como a chave ainda começa com ['teams'],
- * qualquer invalidação de time continua alcançando-a.
- */
 export function useTeamOptions() {
   return useQuery({
     queryKey: queryKeys.teams.options(),
@@ -99,8 +90,7 @@ export function useUpdateTeam(teamId: string) {
         updated,
       )
       void queryClient.invalidateQueries({ queryKey: queryKeys.teams.all })
-      // Nome e cor do time aparecem nos chips das tarefas: sem isto, a lista
-      // de tarefas continuaria mostrando o valor antigo.
+
       void queryClient.invalidateQueries({ queryKey: queryKeys.tasks.all })
     },
   })
@@ -119,7 +109,6 @@ export function useDeleteTeam() {
         queryKey: queryKeys.teams.lists(),
       })
 
-      // Remoção otimista: a lista responde no toque em "Excluir".
       const lists = queryClient.getQueriesData<TeamPages>({
         queryKey: queryKeys.teams.lists(),
       })
@@ -153,7 +142,7 @@ export function useDeleteTeam() {
     onSettled: (_data, _error, teamId) => {
       queryClient.removeQueries({ queryKey: queryKeys.teams.detail(teamId) })
       void queryClient.invalidateQueries({ queryKey: queryKeys.teams.all })
-      // Apagar um time desvincula tarefas: os chips precisam ser recarregados.
+
       void queryClient.invalidateQueries({ queryKey: queryKeys.tasks.all })
     },
   })

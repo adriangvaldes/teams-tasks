@@ -9,7 +9,6 @@ interface TeamOptionProps {
   onToggle: () => void
 }
 
-/** Chip de time selecionável. Selecionado usa a cor cheia; não selecionado, o tom suave. */
 function TeamOption({ team, isSelected, onToggle }: TeamOptionProps) {
   const style = isSelected
     ? { backgroundColor: team.colorHex, borderColor: team.colorHex }
@@ -50,20 +49,11 @@ interface TeamSelectorProps {
   error?: string | undefined
 }
 
-/**
- * Seleção múltipla de times — o lado de UI do relacionamento M:N.
- *
- * Não há opção "nenhum time": deixar tudo desmarcado já significa zero times,
- * que é um estado válido no domínio. Criar uma opção para isso inventaria um
- * estado que o modelo não tem.
- */
 export function TeamSelector({
   selectedIds,
   onChange,
   error,
 }: TeamSelectorProps) {
-  // O seletor precisa da lista inteira, não de uma página — daí o hook
-  // dedicado, com namespace de cache próprio.
   const { data, isPending, isError, refetch } = useTeamOptions()
 
   const toggle = (teamId: string): void => {
@@ -108,7 +98,6 @@ interface TeamOptionsBodyProps {
   onToggle: (teamId: string) => void
 }
 
-/** Os quatro estados do corpo do seletor, isolados da lógica de seleção. */
 function TeamOptionsBody({
   teams,
   isPending,

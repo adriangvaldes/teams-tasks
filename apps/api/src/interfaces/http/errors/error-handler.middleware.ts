@@ -7,11 +7,6 @@ import {
 } from '../../../domain/shared/domain-errors'
 import { RequestValidationError } from './request-validation.error'
 
-/**
- * Traducao de erro -> HTTP. Este e o unico lugar do projeto que sabe que
- * "nao encontrado" e 404: o dominio expressa apenas a categoria semantica
- * (NOT_FOUND), preservando a regra de dependencia da arquitetura hexagonal.
- */
 const DOMAIN_KIND_TO_HTTP: Record<
   DomainErrorKind,
   { status: number; code: ErrorEnvelope['error']['code'] }
@@ -22,8 +17,6 @@ const DOMAIN_KIND_TO_HTTP: Record<
 }
 
 export function createErrorHandler(logger: Logger): ErrorRequestHandler {
-  // A assinatura de 4 parametros e o que faz o Express reconhecer isto como
-  // middleware de erro - por isso `next` existe mesmo sem ser usado.
   return (error, req, res, _next) => {
     if (error instanceof RequestValidationError) {
       return res
@@ -41,8 +34,6 @@ export function createErrorHandler(logger: Logger): ErrorRequestHandler {
         .json(envelope(code, error.message, error.details))
     }
 
-    // Daqui para baixo e falha inesperada: loga com stack para investigacao,
-    // mas NAO devolve detalhe interno ao cliente.
     logger.error('Erro nao tratado', {
       method: req.method,
       path: req.originalUrl,

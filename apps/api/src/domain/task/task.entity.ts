@@ -15,7 +15,7 @@ export interface TaskProps {
   description: string | null
   status: TaskStatus
   dueDate: Date | null
-  /** Uma tarefa pode pertencer a ZERO ou mais times (enunciado). */
+
   teamIds: UniqueEntityId[]
   createdAt: Date
   updatedAt: Date
@@ -47,7 +47,6 @@ export class Task extends Entity<TaskProps> {
     )
   }
 
-  /** Reidrata uma tarefa ja persistida. Usado exclusivamente pelos mappers. */
   static reconstitute(props: TaskProps, id: UniqueEntityId): Task {
     return new Task(props, id)
   }
@@ -108,7 +107,6 @@ export class Task extends Entity<TaskProps> {
     return this.props.dueDate
   }
 
-  /** Copia defensiva: a colecao so muda pelos metodos de intencao da entidade. */
   get teamIds(): readonly UniqueEntityId[] {
     return [...this.props.teamIds]
   }
@@ -121,7 +119,6 @@ export class Task extends Entity<TaskProps> {
     return this.props.updatedAt
   }
 
-  /** Usado pela UI para destacar tarefas atrasadas. `now` vem da porta Clock. */
   isOverdue(now: Date): boolean {
     if (!this.props.dueDate) return false
     if (this.props.status.isDone()) return false
@@ -141,8 +138,6 @@ export class Task extends Entity<TaskProps> {
   changeStatus(status: string, now: Date): void {
     const next = TaskStatus.create(status)
 
-    // Idempotente de proposito: a acao rapida da UI pode reenviar o mesmo
-    // status (ex.: duplo toque) sem que isso conte como uma alteracao.
     if (next.equals(this.props.status)) return
 
     this.props.status = next
@@ -154,7 +149,6 @@ export class Task extends Entity<TaskProps> {
     this.touch(now)
   }
 
-  /** Substitui o conjunto de times vinculados (semantica de PUT). */
   assignTeams(teamIds: string[], now: Date): void {
     this.props.teamIds = Task.normalizeTeamIds(teamIds)
     this.touch(now)

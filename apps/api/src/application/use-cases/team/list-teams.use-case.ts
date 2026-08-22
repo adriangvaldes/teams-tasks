@@ -19,8 +19,6 @@ export class ListTeams implements ListTeamsUseCase {
       sort: input.sort,
     })
 
-    // Duas consultas no total, independente do tamanho da pagina: a listagem
-    // mais uma contagem agregada. Nunca uma contagem por time (N+1).
     const counts = await this.taskRepository.countByTeamIds(
       items.map((team) => team.id),
     )

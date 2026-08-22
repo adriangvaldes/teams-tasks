@@ -1,11 +1,6 @@
 import { Tabs } from 'expo-router'
 import { Text } from 'react-native'
 
-/**
- * Duas abas porque são exatamente as duas listagens que o enunciado pede:
- * tarefas (global) e times. Tocar num time abre a lista filtrada daquele time,
- * em uma tela empilhada — e não numa terceira aba.
- */
 export default function TabsLayout() {
   return (
     <Tabs

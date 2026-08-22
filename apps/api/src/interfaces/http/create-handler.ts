@@ -15,26 +15,11 @@ interface HandlerContext<TBody, TQuery, TParams> {
   params: TParams
 }
 
-/** `undefined` no body resulta em 204 No Content. */
 interface HandlerResult {
   status: number
   body?: unknown
 }
 
-/**
- * Fabrica de route handlers com validacao declarativa.
- *
- * Preferida a um middleware `validate` que escreve em `req.validated` por dois
- * motivos praticos:
- *  1. tipagem real - TBody/TQuery/TParams sao INFERIDOS dos schemas Zod, sem
- *     cast nem augmentation da interface Request;
- *  2. no Express 5 `req.query` e um getter sem setter, entao sobrescrever os
- *     valores parseados no proprio request nao e uma opcao.
- *
- * Erros lancados aqui (ou pelos use cases) sao propagados: o Express 5
- * encaminha rejeicoes de handler async ao middleware de erro automaticamente,
- * o que dispensa um wrapper `asyncHandler`.
- */
 export function createHandler<
   TBody = undefined,
   TQuery = undefined,
@@ -52,8 +37,6 @@ export function createHandler<
     const query = parse(schemas.query, req.query, details)
     const params = parse(schemas.params, req.params, details)
 
-    // Reporta TODOS os campos invalidos de uma vez, e nao apenas o primeiro:
-    // o formulario do mobile consegue marcar tudo em um unico submit.
     if (details.length > 0) {
       throw new RequestValidationError(details)
     }

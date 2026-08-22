@@ -8,7 +8,7 @@ export function createTaskRouter(controller: TaskController): Router {
   router.post('/', controller.create)
   router.get('/:id', controller.getById)
   router.put('/:id', controller.update)
-  // Sub-recurso dedicado a acao rapida "alterar status" da UI.
+
   router.patch('/:id/status', controller.changeStatus)
   router.delete('/:id', controller.remove)
 

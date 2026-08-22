@@ -11,7 +11,6 @@ function hexToRgb(hex: string): { r: number; g: number; b: number } {
   }
 }
 
-/** Luminância relativa segundo a WCAG 2.1. */
 function relativeLuminance(hex: string): number {
   const { r, g, b } = hexToRgb(hex)
 
@@ -24,21 +23,10 @@ function relativeLuminance(hex: string): number {
   return 0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b)
 }
 
-/**
- * Escolhe texto escuro ou claro sobre a cor do time.
- *
- * As cores vêm do banco, definidas pelo usuário: um chip de fundo amarelo com
- * texto branco fixo seria ilegível. Calcular a luminância é o que mantém o
- * contraste aceitável para qualquer cor cadastrada.
- */
 export function readableTextColor(backgroundHex: string): string {
   return relativeLuminance(backgroundHex) > 0.45 ? INK : WHITE
 }
 
-/**
- * Acrescenta canal alfa ao hex. React Native aceita #RRGGBBAA nas duas
- * plataformas, o que evita depender de rgba() montado à mão.
- */
 export function withAlpha(hex: string, alpha: number): string {
   const clamped = Math.max(0, Math.min(1, alpha))
   const channel = Math.round(clamped * 255)

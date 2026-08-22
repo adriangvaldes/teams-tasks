@@ -20,10 +20,6 @@ export const TASKS_PAGE_SIZE = 20
 
 type TaskPages = InfiniteData<ListResponse<TaskDTO>>
 
-/**
- * Listagem paginada. `useInfiniteQuery` sobre limit/offset é o que permite o
- * "carregar mais" da tela consumindo a mesma paginação que a API expõe.
- */
 export function useTasks(filters: TaskListFilters = {}) {
   return useInfiniteQuery({
     queryKey: queryKeys.tasks.list(filters),
@@ -40,7 +36,6 @@ export function useTasks(filters: TaskListFilters = {}) {
   })
 }
 
-/** Achata as páginas e expõe o total, que vem do meta da API. */
 export function flattenTaskPages(pages: TaskPages | undefined): {
   tasks: TaskDTO[]
   total: number
@@ -67,13 +62,12 @@ export function useCreateTask() {
   return useMutation({
     mutationFn: (body: CreateTaskBody) => tasksApi.create(body),
     onSuccess: (created) => {
-      // Semeia o detalhe: navegar para a tarefa recém-criada não mostra loading.
       queryClient.setQueryData<ItemResponse<TaskDTO>>(
         queryKeys.tasks.detail(created.data.id),
         created,
       )
       void queryClient.invalidateQueries({ queryKey: queryKeys.tasks.lists() })
-      // A contagem de tarefas por time muda.
+
       void queryClient.invalidateQueries({ queryKey: queryKeys.teams.all })
     },
   })
@@ -95,21 +89,6 @@ export function useUpdateTask(taskId: string) {
   })
 }
 
-/**
- * Ação rápida com OPTIMISTIC UPDATE.
- *
- * O usuário toca no círculo e a UI responde na hora; a requisição corre atrás.
- * Se falhar, o estado anterior é restaurado a partir do snapshot.
- *
- * Duas sutilezas separam "otimista" de "otimista e correto":
- *
- * 1. `isOverdue` é recalculado localmente. Tarefa concluída não está atrasada,
- *    e sem isso o rótulo vermelho ficaria na tela até a revalidação.
- *
- * 2. Listas FILTRADAS por status têm o item REMOVIDO, não apenas atualizado.
- *    O filtro está na própria query key, então dá para saber que, numa lista
- *    "Pendente", a tarefa que acabou de virar "Concluída" não pertence mais.
- */
 export function useChangeTaskStatus() {
   const queryClient = useQueryClient()
 
@@ -123,8 +102,6 @@ export function useChangeTaskStatus() {
     }) => tasksApi.changeStatus(taskId, status),
 
     onMutate: async ({ taskId, status }) => {
-      // Cancela requisições em voo para que uma resposta antiga não sobrescreva
-      // o estado otimista que acabamos de escrever.
       await queryClient.cancelQueries({ queryKey: queryKeys.tasks.all })
 
       const snapshot = snapshotTaskQueries(queryClient)
@@ -191,8 +168,6 @@ export function useDeleteTask() {
   })
 }
 
-// ---------- Helpers de cache ----------
-
 type TaskQuerySnapshot = ReturnType<typeof snapshotTaskQueries>
 
 function snapshotTaskQueries(queryClient: QueryClient) {
@@ -208,7 +183,6 @@ function restoreTaskQueries(
   }
 }
 
-/** Lê o filtro de status embutido na query key da lista. */
 function statusFilterOf(queryKey: readonly unknown[]): TaskStatusValue | null {
   const filters = queryKey[queryKey.length - 1]
 
@@ -217,14 +191,6 @@ function statusFilterOf(queryKey: readonly unknown[]): TaskStatusValue | null {
   return (filters as TaskListFilters).status ?? null
 }
 
-/**
- * Aplica uma transformação a uma tarefa em TODAS as listas paginadas em cache.
- *
- * `patch === null` remove a tarefa (usado no delete otimista). Um patch que
- * faça a tarefa deixar de casar com o filtro da lista também a remove daquela
- * lista — e o meta.total é ajustado em todas as páginas, porque é a primeira
- * delas que a tela usa para mostrar a contagem.
- */
 function patchTaskInLists(
   queryClient: QueryClient,
   taskId: string,

@@ -7,14 +7,12 @@ export const TASK_STATUSES = ['PENDING', 'IN_PROGRESS', 'DONE'] as const
 export const taskStatusSchema = z.enum(TASK_STATUSES)
 export type TaskStatusValue = (typeof TASK_STATUSES)[number]
 
-/** Rótulos em pt-BR exigidos pela UI (Pendente | Em Progresso | Concluída). */
 export const TASK_STATUS_LABELS: Record<TaskStatusValue, string> = {
   PENDING: 'Pendente',
   IN_PROGRESS: 'Em Progresso',
   DONE: 'Concluída',
 }
 
-/** Requisito de aceitação: título com no mínimo 3 caracteres. */
 export const taskTitleSchema = z
   .string()
   .trim()
@@ -31,15 +29,12 @@ export const dueDateSchema = z.iso.datetime({
   message: 'Data de vencimento deve ser uma data ISO 8601 válida',
 })
 
-/** Uma tarefa pode pertencer a zero ou mais times. */
 export const teamIdsSchema = z
   .array(z.uuid('teamId deve ser um UUID válido'))
   .max(20, 'Uma tarefa pode ter no máximo 20 times')
   .refine((ids) => new Set(ids).size === ids.length, {
     message: 'Não repita o mesmo time',
   })
-
-// ---------- Entrada ----------
 
 export const createTaskBodySchema = z.object({
   title: taskTitleSchema,
@@ -61,7 +56,6 @@ export const updateTaskBodySchema = z
     message: 'Informe ao menos um campo para atualizar',
   })
 
-/** Ação rápida da tela de detalhe: alterar apenas o status. */
 export const changeTaskStatusBodySchema = z.object({
   status: taskStatusSchema,
 })
@@ -90,17 +84,15 @@ export type ChangeTaskStatusBody = z.infer<typeof changeTaskStatusBodySchema>
 export type ListTasksQuery = z.infer<typeof listTasksQuerySchema>
 export type TaskSortOption = (typeof TASK_SORT_OPTIONS)[number]
 
-// ---------- Saída ----------
-
 export interface TaskDTO {
   id: string
   title: string
   description: string | null
   status: TaskStatusValue
   dueDate: string | null
-  /** Embutido de propósito: a lista de tarefas renderiza o chip sem request extra. */
+
   teams: TeamSummaryDTO[]
-  /** Calculado no servidor para que cliente e API concordem sobre "atrasada". */
+
   isOverdue: boolean
   createdAt: string
   updatedAt: string

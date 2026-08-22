@@ -1,16 +1,6 @@
 import { Router } from 'express'
 import type { PrismaClient } from '../../../infrastructure/persistence/prisma/prisma-client'
 
-/**
- * Liveness e readiness separados de proposito.
- *
- * /health responde sem tocar no banco: e o que a plataforma (Railway) usa para
- * saber se o processo esta vivo. Se ele consultasse o banco, uma indisponibilidade
- * momentanea do Postgres provocaria restart em loop do container.
- *
- * /health/ready verifica a dependencia: serve para o avaliador (e para o CI)
- * confirmarem que a conexao esta de fato configurada.
- */
 export function createHealthRouter(prisma: PrismaClient): Router {
   const router = Router()
 

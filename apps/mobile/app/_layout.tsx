@@ -11,11 +11,6 @@ import { createQueryClient } from '@/lib/query-client'
 import { appStorage } from '@/storage'
 import { createQueryPersister } from '@/storage/query-persister'
 
-/**
- * O React Query nasceu na web e, por padrão, usa eventos de foco do DOM que
- * não existem em React Native. Sem esta ponte, voltar do background não
- * revalida nada.
- */
 function useAppStateFocus(): void {
   useEffect(() => {
     const subscription = AppState.addEventListener(
@@ -32,8 +27,6 @@ function useAppStateFocus(): void {
 }
 
 export default function RootLayout() {
-  // Criado uma única vez: um QueryClient novo a cada render descartaria todo
-  // o cache em qualquer re-render do layout.
   const [queryClient] = useState(createQueryClient)
   const [persister] = useState(() => createQueryPersister(appStorage))
 

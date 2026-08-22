@@ -25,8 +25,6 @@ describe('formatDueDateLabel', () => {
 
   describe('tarefa concluída', () => {
     it('troca urgência por registro histórico em vez de dizer "atrasada"', () => {
-      // Dizer "Atrasada há 5 dias" numa tarefa entregue é falso e faz o
-      // usuário achar que ainda há pendência.
       expect(
         formatDueDateLabel('2026-08-15T18:00:00.000Z', {
           now: NOW,
@@ -50,7 +48,6 @@ describe('formatDueDateLabel', () => {
   })
 
   it('compara por dia inteiro, ignorando a hora', () => {
-    // 23:59 de hoje continua sendo "hoje", não "amanhã".
     expect(formatDueDateLabel('2026-08-20T23:59:00.000Z', { now: NOW })).toBe(
       'Vence hoje',
     )
@@ -70,7 +67,6 @@ describe('parseDateInput', () => {
   )
 
   it('rejeita data que não existe no calendário', () => {
-    // O Date do JS "corrige" 31/02 para 03/03 silenciosamente; o parse não deve.
     expect(parseDateInput('31/02/2026')).toBeNull()
     expect(parseDateInput('32/01/2026')).toBeNull()
   })

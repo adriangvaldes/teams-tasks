@@ -18,8 +18,6 @@ export class CreateTask implements CreateTaskUseCase {
   async execute(input: CreateTaskInput): Promise<TaskOutput> {
     const teamIds = input.teamIds ?? []
 
-    // Integridade referencial checada na aplicacao para produzir um erro de
-    // dominio legivel (404 com a lista de ids), e nao um erro cru de FK.
     await this.teamLoader.requireAllExist(teamIds)
 
     const now = this.clock.now()

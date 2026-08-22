@@ -18,13 +18,6 @@ import { createHandler } from '../create-handler'
 import { TeamPresenter } from '../presenters/team.presenter'
 import { idParamsSchema } from '../schemas/id-params.schema'
 
-/**
- * Adapter de entrada HTTP para o agregado Team.
- *
- * Depende apenas das PORTAS de entrada (interfaces UseCase), nunca das classes
- * concretas: e o que permite testar o controller com dublês e o que torna o
- * transporte substituivel sem tocar em regra de negocio.
- */
 export class TeamController {
   constructor(
     private readonly createTeamUseCase: CreateTeamUseCase,

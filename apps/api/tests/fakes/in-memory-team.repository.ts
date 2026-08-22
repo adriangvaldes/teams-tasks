@@ -7,13 +7,6 @@ import type { UniqueEntityId } from '../../src/domain/shared/unique-entity-id'
 import type { Team } from '../../src/domain/team/team.entity'
 import type { TeamName } from '../../src/domain/team/value-objects/team-name.vo'
 
-/**
- * Implementacao em memoria da porta TeamRepository.
- *
- * E o retorno pratico de ter definido a porta com tipos de dominio: os testes
- * unitarios dos casos de uso rodam em milissegundos, sem Docker e sem banco,
- * exercitando exatamente o mesmo contrato que o adapter Prisma cumpre.
- */
 export class InMemoryTeamRepository implements TeamRepository {
   readonly items: Team[] = []
 

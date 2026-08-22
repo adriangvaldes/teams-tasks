@@ -31,7 +31,6 @@ export class UpdateTeam implements UpdateTeamUseCase {
     if (input.name !== undefined) {
       const nextName = TeamName.create(input.name)
 
-      // Unicidade so precisa ser checada se o nome realmente mudou.
       if (!nextName.equals(team.name)) {
         const conflicting = await this.teamRepository.findByName(nextName)
         if (conflicting) {
@@ -46,7 +45,6 @@ export class UpdateTeam implements UpdateTeamUseCase {
       team.changeColor(input.colorHex, now)
     }
 
-    // undefined = campo ausente (nao mexe); null = limpar explicitamente.
     if (input.description !== undefined) {
       team.changeDescription(input.description, now)
     }

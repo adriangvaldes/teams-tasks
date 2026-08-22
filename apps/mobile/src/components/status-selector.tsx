@@ -9,11 +9,6 @@ interface StatusSelectorProps {
   label?: string
 }
 
-/**
- * Seletor de status em três posições. Preferido a um dropdown por ser um
- * conjunto pequeno e fechado: todas as opções ficam visíveis e a troca custa
- * um toque, que é o que a tela de detalhe precisa.
- */
 export function StatusSelector({
   value,
   onChange,

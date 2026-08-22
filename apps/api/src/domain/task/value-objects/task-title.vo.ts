@@ -1,6 +1,5 @@
 import { InvalidTaskTitleError } from '../errors/task-errors'
 
-/** Requisito de aceitacao do enunciado: minimo de 3 caracteres. */
 const MIN_LENGTH = 3
 const MAX_LENGTH = 120
 

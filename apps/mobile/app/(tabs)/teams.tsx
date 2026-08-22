@@ -54,7 +54,6 @@ export default function TeamsScreen() {
         renderItem={(team) => (
           <TeamCard
             team={team}
-            // Requisito: tocar em um time filtra as tarefas por ele.
             onPress={() => router.push(`/teams/${team.id}`)}
           />
         )}

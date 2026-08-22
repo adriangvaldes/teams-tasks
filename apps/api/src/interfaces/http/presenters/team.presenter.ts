@@ -4,16 +4,6 @@ import type {
   TeamSummaryOutput,
 } from '../../../application/dtos/team.dto'
 
-/**
- * Travessia aplicacao -> HTTP. Responsabilidade unica: serializar.
- *
- * E aqui que `Date` se torna string ISO 8601. A camada de aplicacao trabalha
- * com Date porque isso e o correto para regra de negocio; JSON nao tem tipo
- * data, e essa conversao e um detalhe do transporte.
- *
- * O tipo de retorno e o TeamDTO do pacote shared, o mesmo que o app mobile
- * consome: se o contrato mudar de um lado, o TypeScript quebra no outro.
- */
 export const TeamPresenter = {
   toDTO(output: TeamOutput): TeamDTO {
     return {

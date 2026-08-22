@@ -4,7 +4,6 @@ import { ApiError } from './api-error'
 
 type QueryValue = string | number | boolean | undefined | null
 
-/** Monta a query string ignorando filtros não preenchidos. */
 export function buildQueryString(params: Record<string, QueryValue>): string {
   const search = new URLSearchParams()
 
@@ -24,13 +23,6 @@ interface RequestOptions {
   signal?: AbortSignal
 }
 
-/**
- * Combina o sinal do chamador com um timeout próprio.
- *
- * Rede móvel pode pendurar a conexão indefinidamente; sem timeout a tela ficaria
- * em loading para sempre. O React Query cancela queries obsoletas pelo signal
- * dele, então os dois precisam valer ao mesmo tempo.
- */
 function buildSignal(signal: AbortSignal | undefined): AbortSignal {
   const timeout = AbortSignal.timeout(API_TIMEOUT_MS)
 
@@ -54,9 +46,6 @@ async function performFetch(
       ...(hasBody ? { body: JSON.stringify(body) } : {}),
     })
   } catch (error) {
-    // Cancelamento pelo React Query não é falha: repassamos o erro original
-    // para que ele trate como query descartada, e não como erro de rede
-    // exibido ao usuário.
     if (signal?.aborted) throw error
 
     throw ApiError.network(
@@ -65,7 +54,6 @@ async function performFetch(
   }
 }
 
-/** Converte uma resposta de erro no ApiError correspondente. */
 function toApiError(status: number, payload: unknown): ApiError {
   if (isErrorEnvelope(payload)) {
     return new ApiError(
@@ -89,7 +77,6 @@ async function request<TResponse>(
 ): Promise<TResponse> {
   const response = await performFetch(path, options)
 
-  // DELETE responde 204 sem corpo: tentar ler JSON aqui lançaria.
   if (response.status === 204) {
     return undefined as TResponse
   }

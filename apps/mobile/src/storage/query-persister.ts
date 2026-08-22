@@ -6,24 +6,10 @@ import type { StoragePort } from './storage-port'
 
 const CACHE_KEY = 'teams-tasks:react-query-cache'
 
-/**
- * Versao do formato persistido. Ao mudar a forma de um DTO, incrementar aqui
- * descarta o cache antigo em vez de reidratar dado incompativel na tela.
- */
 const CACHE_VERSION = 'v1'
 
 const WRITE_THROTTLE_MS = 1_000
 
-/**
- * Persistidor do cache do React Query sobre a nossa StoragePort.
- *
- * Escrito a mao (em lugar de @tanstack/query-async-storage-persister) por dois
- * motivos: uma dependencia menos, e o controle do versionamento acima - que e
- * o que evita "o app abriu com dado de um formato que nao existe mais".
- *
- * As escritas sao agrupadas: sem throttle, cada mutacao otimista gravaria o
- * cache inteiro em disco, varias vezes por segundo.
- */
 export function createQueryPersister(storage: StoragePort): Persister {
   let pending: PersistedClient | null = null
   let timer: ReturnType<typeof setTimeout> | null = null
@@ -40,10 +26,7 @@ export function createQueryPersister(storage: StoragePort): Persister {
         CACHE_KEY,
         JSON.stringify({ version: CACHE_VERSION, client }),
       )
-    } catch {
-      // Falha ao persistir nao pode derrubar a UI: o app segue funcionando
-      // apenas sem cache offline.
-    }
+    } catch {}
   }
 
   return {

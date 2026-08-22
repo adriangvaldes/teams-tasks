@@ -19,8 +19,6 @@ export function TeamCard({ team, onPress }: TeamCardProps) {
       accessibilityHint="Toque para ver as tarefas deste time"
       className="flex-row items-center gap-3 rounded-2xl border border-border bg-surface p-4 active:bg-canvas"
     >
-      {/* Marca de cor do time: fundo suave com a borda na cor cheia, para o
-          time ser reconhecível de relance sem competir com o texto. */}
       <View
         style={{
           backgroundColor: withAlpha(team.colorHex, 0.15),

@@ -1,8 +1,3 @@
-/**
- * Envelope de resposta da API. Contrato unico consumido pelo backend (ao serializar)
- * e pelo mobile (ao desserializar), garantindo que as duas pontas nao divirjam.
- */
-
 export const ERROR_CODES = {
   VALIDATION_ERROR: 'VALIDATION_ERROR',
   NOT_FOUND: 'NOT_FOUND',
@@ -12,7 +7,6 @@ export const ERROR_CODES = {
 
 export type ErrorCode = (typeof ERROR_CODES)[keyof typeof ERROR_CODES]
 
-/** Detalhe de um campo invalido, no formato produzido pela validacao de entrada. */
 export interface ErrorDetail {
   path: string
   message: string

@@ -31,8 +31,6 @@ export default function EditTaskScreen() {
 
   const task = query.data.data
 
-  // Caminho inverso do toTaskBody: o DTO fala ISO e null, o formulário fala
-  // dd/mm/aaaa e string vazia.
   const defaultValues: TaskFormValues = {
     title: task.title,
     description: task.description ?? '',

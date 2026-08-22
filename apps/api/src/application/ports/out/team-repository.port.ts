@@ -14,11 +14,6 @@ export interface ListTeamsCriteria extends PaginationCriteria {
   sort: SortCriteria<TeamSortField>
 }
 
-/**
- * Porta de saida do agregado Team. Repare que so aparecem tipos de dominio na
- * assinatura - nada de Prisma, SQL ou HTTP. Qualquer implementacao serve
- * (Prisma, em memoria nos testes, outro banco amanha).
- */
 export interface TeamRepository {
   findById(id: UniqueEntityId): Promise<Team | null>
   findManyByIds(ids: readonly UniqueEntityId[]): Promise<Team[]>

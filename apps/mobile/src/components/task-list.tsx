@@ -27,7 +27,6 @@ function pluralizeTasks(total: number): string {
 }
 
 interface TaskListProps {
-  /** Quando presente, a lista mostra apenas as tarefas deste time. */
   teamId?: string
   emptyTitle?: string
   emptyDescription?: string
@@ -43,8 +42,6 @@ export function TaskList({
   const [search, setSearch] = useState('')
   const [status, setStatus] = useState<TaskStatusValue | null>(null)
 
-  // O valor com debounce é o que entra na query key: sem isso, cada tecla
-  // criaria uma entrada de cache nova e uma requisição.
   const debouncedSearch = useDebouncedValue(search)
   const trimmedSearch = debouncedSearch.trim()
 

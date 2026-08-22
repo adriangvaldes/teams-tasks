@@ -35,7 +35,6 @@ export const tasksApi = {
   update: (taskId: string, body: UpdateTaskBody) =>
     httpClient.put<ItemResponse<TaskDTO>>(`${BASE_PATH}/${taskId}`, body),
 
-  /** Acao rapida: endpoint dedicado, payload minimo, ideal para optimistic update. */
   changeStatus: (taskId: string, status: TaskStatusValue) =>
     httpClient.patch<ItemResponse<TaskDTO>>(`${BASE_PATH}/${taskId}/status`, {
       status,

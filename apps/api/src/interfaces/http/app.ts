@@ -21,13 +21,6 @@ export interface AppDependencies {
   taskController: TaskController
 }
 
-/**
- * Monta a aplicacao Express a partir de dependencias JA construidas.
- *
- * Nao instancia nada por conta propria - quem faz o wiring e o composition
- * root (main.ts). Isso permite que os testes de integracao montem o mesmo app
- * apontando para outro banco, sem subir o servidor HTTP real.
- */
 export function createApp({
   env,
   logger,
@@ -37,8 +30,6 @@ export function createApp({
 }: AppDependencies): Express {
   const app = express()
 
-  // Confia no proxy da plataforma (Railway) para que req.ip e o protocolo
-  // refletiam o cliente real, e nao o load balancer.
   app.set('trust proxy', 1)
 
   app.use(helmet())
@@ -47,7 +38,7 @@ export function createApp({
   app.use(
     pinoHttp({
       logger: logger.instance,
-      // Health check polling da plataforma nao precisa poluir o log.
+
       autoLogging: { ignore: (req) => req.url?.startsWith('/health') ?? false },
     }),
   )
@@ -56,8 +47,6 @@ export function createApp({
   app.use('/api/teams', createTeamRouter(teamController))
   app.use('/api/tasks', createTaskRouter(taskController))
 
-  // Rota inexistente responde no MESMO envelope de erro das demais falhas,
-  // em vez do HTML padrao do Express.
   app.use((req, res) => {
     res.status(404).json({
       error: {
@@ -67,7 +56,6 @@ export function createApp({
     })
   })
 
-  // Precisa ser o ULTIMO middleware registrado.
   app.use(createErrorHandler(logger))
 
   return app

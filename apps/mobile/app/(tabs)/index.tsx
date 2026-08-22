@@ -2,7 +2,6 @@ import { Link, Stack } from 'expo-router'
 import { Pressable, Text, View } from 'react-native'
 import { TaskList } from '@/components/task-list'
 
-/** Lista GLOBAL de tarefas. A versão filtrada por time vive em /teams/[id]. */
 export default function TasksScreen() {
   return (
     <View className="flex-1 bg-canvas">
@@ -10,8 +9,6 @@ export default function TasksScreen() {
 
       <TaskList />
 
-      {/* Botão flutuante: a ação principal da tela fica sempre ao alcance do
-          polegar, mesmo com a lista rolada. */}
       <Link href="/tasks/new" asChild>
         <Pressable
           accessibilityRole="button"

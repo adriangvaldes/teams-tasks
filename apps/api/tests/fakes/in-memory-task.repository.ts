@@ -87,9 +87,6 @@ export class InMemoryTaskRepository implements TaskRepository {
         return a.status.value.localeCompare(b.status.value) * direction
 
       case 'dueDate': {
-        // Espelha o adapter Prisma: nulos sempre por ultimo, independente da
-        // direcao. Se o fake divergisse aqui, o teste unitario passaria e o
-        // comportamento real seria outro.
         if (!a.dueDate && !b.dueDate) return 0
         if (!a.dueDate) return 1
         if (!b.dueDate) return -1

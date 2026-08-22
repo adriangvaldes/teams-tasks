@@ -1,11 +1,5 @@
 import { InvalidTaskStatusError } from '../errors/task-errors'
 
-/**
- * O dominio declara seus proprios valores validos em vez de importar do pacote
- * @teams-tasks/shared. A duplicacao e deliberada: `shared` e o contrato de
- * TRANSPORTE (usado tambem pelo mobile), enquanto isto aqui e a INVARIANTE de
- * negocio. Manter o dominio sem dependencias e o que permite testa-lo sozinho.
- */
 export const TASK_STATUS_VALUES = ['PENDING', 'IN_PROGRESS', 'DONE'] as const
 
 export type TaskStatusValue = (typeof TASK_STATUS_VALUES)[number]

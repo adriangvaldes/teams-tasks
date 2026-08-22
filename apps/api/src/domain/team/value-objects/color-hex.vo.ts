@@ -2,10 +2,6 @@ import { InvalidColorHexError } from '../errors/team-errors'
 
 const HEX_PATTERN = /^#[0-9A-Fa-f]{6}$/
 
-/**
- * Cor do time, renderizada como chip nas tarefas. Normaliza para maiuscula para
- * que "#ff0000" e "#FF0000" sejam a mesma cor no banco e nas comparacoes.
- */
 export class ColorHex {
   private constructor(private readonly _value: string) {}
 

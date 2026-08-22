@@ -7,8 +7,6 @@ import { useCreateTask } from '@/hooks/use-tasks'
 export default function NewTaskScreen() {
   const router = useRouter()
 
-  // Ao criar a tarefa a partir da tela de um time, ele já vem selecionado -
-  // o usuário não precisa procurá-lo no seletor.
   const { teamId } = useLocalSearchParams<{ teamId?: string }>()
 
   const createTask = useCreateTask()

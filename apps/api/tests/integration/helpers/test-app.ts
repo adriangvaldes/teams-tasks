@@ -11,14 +11,6 @@ export interface TestContext {
   shutdown: () => Promise<void>
 }
 
-/**
- * Monta o app REAL (mesmo composition root, mesmos middlewares, mesmo Prisma)
- * apontando para o schema de teste.
- *
- * Nao sobe servidor HTTP: o supertest fala direto com a instancia do Express.
- * Testes de integracao aqui significam "todas as camadas de verdade, do
- * roteamento ao Postgres" - o unico dublê e a ausencia de socket.
- */
 export function createTestContext(): TestContext {
   const env = loadEnv({
     ...process.env,
@@ -40,10 +32,6 @@ export function createTestContext(): TestContext {
   return { app, prisma: container.prisma, shutdown: container.shutdown }
 }
 
-/**
- * Zera o banco entre testes. TRUNCATE com CASCADE em vez de deleteMany por ser
- * mais rapido e por resetar tudo em uma unica ida ao banco.
- */
 export async function resetDatabase(prisma: PrismaClient): Promise<void> {
   await prisma.$executeRawUnsafe(
     'TRUNCATE TABLE "task_teams", "tasks", "teams" CASCADE',

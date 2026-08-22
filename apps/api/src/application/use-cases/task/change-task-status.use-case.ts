@@ -8,13 +8,6 @@ import type { Logger } from '../../ports/out/logger.port'
 import type { TaskRepository } from '../../ports/out/task-repository.port'
 import type { TeamLoader } from '../../services/team-loader.service'
 
-/**
- * Use case dedicado a acao rapida da UI ("marcar como Concluida").
- *
- * Poderia ser um UpdateTask com um campo, mas ter um use case proprio deixa a
- * intencao explicita, permite otimizacao/log especificos e e o endpoint que o
- * mobile usa para optimistic update.
- */
 export class ChangeTaskStatus implements ChangeTaskStatusUseCase {
   constructor(
     private readonly taskRepository: TaskRepository,

@@ -81,8 +81,6 @@ export function TeamForm({
         name="colorHex"
         render={({ field }) => (
           <View className="gap-3">
-            {/* Paleta como atalho, campo de texto como escape: o contrato
-                aceita qualquer #RRGGBB, então a UI não deve limitar a oito. */}
             <View className="gap-1.5">
               <Text className="text-sm font-medium text-ink">Cor do time</Text>
               <View className="flex-row flex-wrap gap-2">

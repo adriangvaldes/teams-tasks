@@ -9,7 +9,6 @@ interface LogEntry {
   context?: LogContext
 }
 
-/** Logger silencioso que guarda o que foi registrado, para asserts opcionais. */
 export class RecordingLogger implements Logger {
   readonly entries: LogEntry[] = []
 

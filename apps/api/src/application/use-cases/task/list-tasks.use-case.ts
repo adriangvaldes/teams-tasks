@@ -16,8 +16,6 @@ export class ListTasks implements ListTasksUseCase {
   ) {}
 
   async execute(input: ListTasksInput): Promise<PaginatedOutput<TaskOutput>> {
-    // Strings de query viram tipos de dominio AQUI. A partir deste ponto o
-    // repositorio recebe apenas valores ja validados.
     const { items, total } = await this.taskRepository.list({
       teamId: input.teamId ? UniqueEntityId.create(input.teamId) : undefined,
       status: input.status ? TaskStatus.create(input.status) : undefined,
@@ -27,7 +25,6 @@ export class ListTasks implements ListTasksUseCase {
       sort: input.sort,
     })
 
-    // Uniao dos times de TODAS as tarefas da pagina, resolvida numa consulta.
     const teams = await this.teamLoader.loadByIds(
       items.flatMap((task) => [...task.teamIds]),
     )

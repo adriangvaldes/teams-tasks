@@ -32,21 +32,7 @@ export interface Container {
   shutdown: () => Promise<void>
 }
 
-/**
- * COMPOSITION ROOT.
- *
- * E o unico ponto do backend onde classes concretas se encontram: aqui as
- * implementacoes de infraestrutura (Prisma, Pino, UUID, Date) sao injetadas
- * nas portas que os casos de uso declararam. Todo o resto do codigo conhece
- * apenas interfaces.
- *
- * Deliberadamente SEM container de DI (tsyringe, inversify): em um dominio de
- * duas entidades, um container acrescenta decorators, metadata de reflexao e
- * erros em tempo de execucao, para resolver um grafo de dependencias que cabe
- * em uma tela e que o TypeScript ja valida em tempo de compilacao.
- */
 export function createContainer(env: Env): Container {
-  // --- Adapters de saida ---
   const logger = PinoLogger.create(env)
   const prisma = createPrismaClient(env)
   const clock = new SystemClock()
@@ -55,10 +41,8 @@ export function createContainer(env: Env): Container {
   const teamRepository = new PrismaTeamRepository(prisma)
   const taskRepository = new PrismaTaskRepository(prisma)
 
-  // --- Servicos de aplicacao ---
   const teamLoader = new TeamLoader(teamRepository)
 
-  // --- Casos de uso + adapters de entrada ---
   const teamController = new TeamController(
     new CreateTeam(teamRepository, idGenerator, clock),
     new UpdateTeam(teamRepository, taskRepository, clock),

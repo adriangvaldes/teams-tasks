@@ -10,7 +10,6 @@ import type { TeamName } from '../../../domain/team/value-objects/team-name.vo'
 import { PrismaTeamMapper } from './mappers/prisma-team.mapper'
 import type { PrismaClient } from './prisma-client'
 
-/** Adapter de saida: implementa a porta TeamRepository sobre o Prisma. */
 export class PrismaTeamRepository implements TeamRepository {
   constructor(private readonly prisma: PrismaClient) {}
 
@@ -31,8 +30,6 @@ export class PrismaTeamRepository implements TeamRepository {
   }
 
   async findByName(name: TeamName): Promise<Team | null> {
-    // Unicidade case-insensitive: "Squad Alpha" e "squad alpha" sao o mesmo
-    // time para o usuario, ainda que o unique do Postgres diferencie.
     const row = await this.prisma.team.findFirst({
       where: { name: { equals: name.value, mode: 'insensitive' } },
     })
@@ -43,7 +40,6 @@ export class PrismaTeamRepository implements TeamRepository {
   async list(criteria: ListTeamsCriteria): Promise<PaginatedResult<Team>> {
     const where = PrismaTeamRepository.buildWhere(criteria)
 
-    // Uma transacao para que total e pagina sejam consistentes entre si.
     const [rows, total] = await this.prisma.$transaction([
       this.prisma.team.findMany({
         where,
@@ -70,7 +66,6 @@ export class PrismaTeamRepository implements TeamRepository {
   }
 
   async delete(id: UniqueEntityId): Promise<void> {
-    // Os vinculos em task_teams caem por onDelete: Cascade; as tarefas ficam.
     await this.prisma.team.delete({ where: { id: id.value } })
   }
 

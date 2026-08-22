@@ -4,17 +4,6 @@ import { Team } from '../../../../domain/team/team.entity'
 import { ColorHex } from '../../../../domain/team/value-objects/color-hex.vo'
 import { TeamName } from '../../../../domain/team/value-objects/team-name.vo'
 
-/**
- * Travessia persistencia <-> dominio.
- *
- * Este e o unico arquivo do backend que conhece a forma da linha no banco E a
- * forma da entidade. Trocar Prisma por outro ORM significa reescrever este
- * mapper e o repositorio - nada acima disso.
- *
- * Ao reidratar, os value objects sao reconstruidos e portanto REVALIDADOS: se
- * uma linha corrompida entrar no banco por fora da aplicacao, o erro aparece
- * aqui, na borda, em vez de se espalhar como dado invalido.
- */
 export const PrismaTeamMapper = {
   toDomain(row: PrismaTeam): Team {
     return Team.reconstitute(

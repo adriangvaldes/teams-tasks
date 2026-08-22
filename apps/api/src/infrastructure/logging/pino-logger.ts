@@ -5,11 +5,6 @@ import type {
 } from '../../application/ports/out/logger.port'
 import type { Env } from '../config/env'
 
-/**
- * Adapter de saida da porta Logger. Em desenvolvimento usa pino-pretty para
- * legibilidade; em producao emite JSON estruturado, que e o formato que
- * agregadores (Datadog, Loki, CloudWatch) sabem indexar.
- */
 export class PinoLogger implements Logger {
   private constructor(private readonly logger: PinoInstance) {}
 
@@ -27,13 +22,12 @@ export class PinoLogger implements Logger {
               },
             }
           : {}),
-        // Nunca vaze credenciais nos logs.
+
         redact: ['req.headers.authorization', 'req.headers.cookie'],
       }),
     )
   }
 
-  /** Expoe a instancia crua apenas para o middleware pino-http. */
   get instance(): PinoInstance {
     return this.logger
   }

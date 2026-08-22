@@ -19,10 +19,7 @@ export interface ListTasksCriteria extends PaginationCriteria {
 export interface TaskRepository {
   findById(id: UniqueEntityId): Promise<Task | null>
   list(criteria: ListTasksCriteria): Promise<PaginatedResult<Task>>
-  /**
-   * Contagem agregada por time em UMA consulta. Existe justamente para que
-   * a listagem de times nao caia em N+1 ao exibir o total de tarefas.
-   */
+
   countByTeamIds(
     teamIds: readonly UniqueEntityId[],
   ): Promise<Map<string, number>>

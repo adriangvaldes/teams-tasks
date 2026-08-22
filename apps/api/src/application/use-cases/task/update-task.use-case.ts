@@ -32,7 +32,6 @@ export class UpdateTask implements UpdateTaskUseCase {
       task.changeTitle(input.title, now)
     }
 
-    // undefined = campo ausente (nao mexe); null = limpar explicitamente.
     if (input.description !== undefined) {
       task.changeDescription(input.description, now)
     }
@@ -45,7 +44,6 @@ export class UpdateTask implements UpdateTaskUseCase {
       task.changeDueDate(input.dueDate, now)
     }
 
-    // Semantica de PUT: o array recebido SUBSTITUI o conjunto de times.
     if (input.teamIds !== undefined) {
       task.assignTeams(input.teamIds, now)
     }

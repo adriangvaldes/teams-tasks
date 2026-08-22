@@ -1,12 +1,6 @@
 import type { TeamSortField } from '../ports/out/team-repository.port'
 import type { SortCriteria } from './pagination.dto'
 
-// ---------- Saida ----------
-
-/**
- * Visao de aplicacao de um time. Note que `createdAt` e `Date`, nao string ISO:
- * serializacao e responsabilidade do adapter HTTP, nao da aplicacao.
- */
 export interface TeamOutput {
   id: string
   name: string
@@ -17,14 +11,11 @@ export interface TeamOutput {
   updatedAt: Date
 }
 
-/** Projecao minima usada dentro da tarefa (chip de cor). */
 export interface TeamSummaryOutput {
   id: string
   name: string
   colorHex: string
 }
-
-// ---------- Entrada (uma por use case) ----------
 
 export interface CreateTeamInput {
   name: string

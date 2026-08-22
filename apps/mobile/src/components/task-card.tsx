@@ -28,13 +28,10 @@ export function TaskCard({
       accessibilityHint="Toque para ver os detalhes"
       className={[
         'flex-row gap-3 rounded-2xl border border-border bg-surface p-4 active:bg-canvas',
-        // Feedback do optimistic update: o card esmaece enquanto a requisição
-        // está no ar, mas o conteúdo já mostra o valor novo.
+
         isUpdating ? 'opacity-60' : '',
       ].join(' ')}
     >
-      {/* Ação rápida separada do corpo do card: alterna o status sem abrir a
-          tela de detalhe. hitSlop dá alvo de toque adequado ao dedo. */}
       <Pressable
         onPress={onToggleStatus}
         hitSlop={10}

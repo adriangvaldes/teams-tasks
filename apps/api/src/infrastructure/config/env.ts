@@ -1,10 +1,5 @@
 import { z } from 'zod'
 
-/**
- * Validacao de configuracao na BORDA do processo. Se uma variavel obrigatoria
- * faltar, o servidor nao sobe "meio funcionando": ele falha imediatamente com
- * uma mensagem legivel. Nenhuma outra camada le process.env.
- */
 const envSchema = z.object({
   NODE_ENV: z
     .enum(['development', 'test', 'production'])
@@ -20,7 +15,6 @@ const envSchema = z.object({
     .enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])
     .default('info'),
 
-  /** Lista separada por virgula, ou '*' para liberar todas as origens. */
   CORS_ORIGIN: z.string().default('*'),
 })
 

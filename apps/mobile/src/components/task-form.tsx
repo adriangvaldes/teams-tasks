@@ -39,18 +39,10 @@ export function TaskForm({
   } = useForm<TaskFormValues>({
     resolver: zodResolver(taskFormSchema),
     defaultValues,
-    // Valida ao sair do campo em vez de a cada tecla: em mobile, ver o erro
-    // "mínimo 3 caracteres" já na primeira letra digitada é hostil.
+
     mode: 'onBlur',
   })
 
-  /**
-   * Erro do servidor volta para o CAMPO correspondente.
-   *
-   * A API devolve details com o path de cada problema, então um 409 de nome
-   * duplicado ou uma regra que só o backend conhece aparece embaixo do campo -
-   * e não como um alerta genérico que o usuário não sabe onde corrigir.
-   */
   useEffect(() => {
     if (!(submitError instanceof ApiError)) return
 
@@ -120,8 +112,6 @@ export function TaskForm({
           <TextField
             label="Prazo"
             value={field.value}
-            // Máscara aplicada no onChange: o usuário digita apenas números e
-            // as barras aparecem sozinhas.
             onChangeText={(text) => field.onChange(maskDateInput(text))}
             onBlur={field.onBlur}
             placeholder="dd/mm/aaaa"

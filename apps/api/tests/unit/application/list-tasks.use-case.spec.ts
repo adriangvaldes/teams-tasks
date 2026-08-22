@@ -61,7 +61,7 @@ describe('ListTasks', () => {
         Task.create(
           fixture,
           ids.generate(),
-          // createdAt crescente, para que a ordenacao seja verificavel.
+
           new Date(NOW.getTime() + index * 60_000),
         ),
       )
@@ -127,7 +127,7 @@ describe('ListTasks', () => {
     })
 
     expect(result.items).toHaveLength(2)
-    // total continua sendo o total FILTRADO, nao o tamanho da pagina.
+
     expect(result.total).toBe(4)
     expect(result.offset).toBe(2)
   })
@@ -147,8 +147,7 @@ describe('ListTasks', () => {
     const result = await useCase.execute({ ...DEFAULT_QUERY })
 
     expect(spy).toHaveBeenCalledTimes(1)
-    // Tres tarefas com time apontam para apenas dois times distintos: os ids
-    // sao deduplicados antes de ir ao repositorio.
+
     expect(spy.mock.calls[0]?.[0]).toHaveLength(2)
     expect(result.items.filter((task) => task.teams.length > 0)).toHaveLength(3)
   })

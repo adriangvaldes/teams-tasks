@@ -52,9 +52,6 @@ export default function TaskDetailScreen() {
           style: 'destructive',
           onPress: () => {
             deleteTask.mutate(task.id, {
-              // Volta ANTES de esperar a resposta faria a tela sumir mesmo em
-              // caso de erro. Aqui a navegação acontece no sucesso, e o
-              // rollback otimista recoloca o item na lista se falhar.
               onSuccess: () => router.back(),
               onError: (error) => {
                 Alert.alert(
@@ -94,7 +91,6 @@ export default function TaskDetailScreen() {
           )}
         </View>
 
-        {/* Ação rápida principal: trocar o status sem sair da tela. */}
         <View className="rounded-2xl border border-border bg-surface p-4">
           <StatusSelector
             label="Alterar status"

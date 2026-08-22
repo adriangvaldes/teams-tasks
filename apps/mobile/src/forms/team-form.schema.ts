@@ -16,7 +16,6 @@ export const teamFormSchema = z.object({
 
 export type TeamFormValues = z.infer<typeof teamFormSchema>
 
-/** Paleta sugerida. O usuário ainda pode digitar qualquer hexadecimal. */
 export const TEAM_COLOR_PRESETS = [
   '#2563EB',
   '#DB2777',

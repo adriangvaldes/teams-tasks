@@ -6,7 +6,7 @@ const WHITE = '#FFFFFF'
 describe('readableTextColor', () => {
   it.each([
     ['#FFFFFF', INK],
-    ['#FDE047', INK], // amarelo claro: texto branco aqui seria ilegível
+    ['#FDE047', INK],
     ['#059669', WHITE],
     ['#2563EB', WHITE],
     ['#000000', WHITE],

@@ -7,19 +7,6 @@ import { createPrismaClient } from '../src/infrastructure/persistence/prisma/pri
 import { PrismaTaskRepository } from '../src/infrastructure/persistence/prisma/prisma-task.repository'
 import { PrismaTeamRepository } from '../src/infrastructure/persistence/prisma/prisma-team.repository'
 
-/**
- * Seed do enunciado: 3 times e 10 tarefas.
- *
- * Duas decisoes que valem explicacao:
- *
- * 1. Passa pelas ENTIDADES DE DOMINIO e pelos repositorios, nao por inserts
- *    crus. Se uma regra de negocio mudar (ex.: titulo minimo), o seed quebra
- *    junto - ele nunca produz dado que a aplicacao consideraria invalido.
- *
- * 2. IDs FIXOS. Isso torna o seed idempotente e, principalmente, faz os
- *    exemplos de cURL do README funcionarem copiando e colando.
- */
-
 const TEAM_IDS = {
   alpha: '11111111-1111-4111-8111-111111111111',
   design: '22222222-2222-4222-8222-222222222222',
@@ -47,7 +34,6 @@ const TEAMS = [
   },
 ]
 
-/** Deslocamento em dias a partir de hoje. Negativo = tarefa atrasada. */
 function daysFromNow(days: number, base: Date): string {
   const date = new Date(base)
   date.setUTCDate(date.getUTCDate() + days)
@@ -55,10 +41,6 @@ function daysFromNow(days: number, base: Date): string {
   return date.toISOString()
 }
 
-/**
- * Cobertura pensada para exercitar a avaliacao: os tres status, tarefas com
- * zero, um e dois times, prazos vencidos, futuros e ausentes.
- */
 function buildTasks(now: Date) {
   return [
     {
@@ -91,7 +73,7 @@ function buildTasks(now: Date) {
       description: 'Usado na lista e no detalhe da tarefa.',
       status: 'DONE',
       dueDate: daysFromNow(-2, now),
-      // Duas equipes: exercita o relacionamento M:N.
+
       teamIds: [TEAM_IDS.alpha, TEAM_IDS.design],
     },
     {
@@ -99,7 +81,7 @@ function buildTasks(now: Date) {
       title: 'Revisar indices de busca de tarefas',
       description: 'Avaliar pg_trgm para o filtro de busca textual.',
       status: 'PENDING',
-      // Atrasada de proposito: valida o destaque de isOverdue na UI.
+
       dueDate: daysFromNow(-1, now),
       teamIds: [TEAM_IDS.infra],
     },
@@ -133,7 +115,7 @@ function buildTasks(now: Date) {
       description: 'Tarefa ainda sem responsavel definido.',
       status: 'PENDING',
       dueDate: null,
-      // Sem time: valida "uma tarefa pode pertencer a ZERO ou mais times".
+
       teamIds: [],
     },
     {
@@ -155,8 +137,6 @@ async function seed(): Promise<void> {
   const taskRepository = new PrismaTaskRepository(prisma)
 
   try {
-    // Limpa antes de inserir para que rodar `pnpm seed` duas vezes resulte
-    // sempre em exatamente 3 times e 10 tarefas.
     await prisma.taskTeam.deleteMany()
     await prisma.task.deleteMany()
     await prisma.team.deleteMany()

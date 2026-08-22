@@ -11,11 +11,6 @@ export class DeleteTeam implements DeleteTeamUseCase {
     private readonly logger: Logger,
   ) {}
 
-  /**
-   * Apagar um time remove apenas os VINCULOS com as tarefas (cascade em
-   * task_teams). As tarefas continuam existindo, possivelmente sem nenhum time,
-   * o que o dominio permite: uma tarefa pertence a zero ou mais times.
-   */
   async execute(input: DeleteTeamInput): Promise<void> {
     const teamId = UniqueEntityId.create(input.teamId)
 

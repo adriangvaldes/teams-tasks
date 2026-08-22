@@ -7,14 +7,6 @@ interface TeamChipProps {
   size?: 'sm' | 'md'
 }
 
-/**
- * Requisito do enunciado: a cor do time aparece como label/chip na tarefa.
- *
- * A cor vem do banco em runtime, então precisa ir por `style` e não por
- * className: o Tailwind gera classes em tempo de build e não conhece um
- * `#DB2777` cadastrado pelo usuário. A cor do texto é calculada para manter
- * contraste legível em qualquer tom escolhido.
- */
 export function TeamChip({ team, size = 'md' }: TeamChipProps) {
   const textColor = readableTextColor(team.colorHex)
 
@@ -40,10 +32,6 @@ export function TeamChip({ team, size = 'md' }: TeamChipProps) {
   )
 }
 
-/**
- * Lista de chips com limite visível. Uma tarefa pode ter muitos times, e
- * deixar a linha crescer sem limite quebraria o layout do card.
- */
 export function TeamChipList({
   teams,
   max = 3,

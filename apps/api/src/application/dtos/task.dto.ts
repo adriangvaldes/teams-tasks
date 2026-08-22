@@ -3,23 +3,19 @@ import type { TaskSortField } from '../ports/out/task-repository.port'
 import type { SortCriteria } from './pagination.dto'
 import type { TeamSummaryOutput } from './team.dto'
 
-// ---------- Saida ----------
-
 export interface TaskOutput {
   id: string
   title: string
   description: string | null
   status: TaskStatusValue
   dueDate: Date | null
-  /** Times resolvidos aqui para que o cliente renderize o chip sem outro request. */
+
   teams: TeamSummaryOutput[]
-  /** Calculado com o Clock injetado - nunca com `new Date()` solto. */
+
   isOverdue: boolean
   createdAt: Date
   updatedAt: Date
 }
-
-// ---------- Entrada (uma por use case) ----------
 
 export interface CreateTaskInput {
   title: string

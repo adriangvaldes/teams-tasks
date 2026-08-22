@@ -31,9 +31,6 @@ async function renderForm() {
     />,
   )
 
-  // Espera a query de times assentar ANTES de devolver o controle ao teste.
-  // Sem isso, os casos que não usam o seletor terminam com a requisição em voo
-  // e o React reclama de atualização de estado fora de act().
   await screen.findByLabelText('Time Squad Alpha')
 
   return { ...utils, onSubmit }
@@ -50,7 +47,6 @@ describe('TaskForm', () => {
     await fireEvent.changeText(screen.getByLabelText('Título'), 'ab')
     await fireEvent.press(screen.getByLabelText('Criar tarefa'))
 
-    // Requisito de aceitação: título com no mínimo 3 caracteres.
     expect(
       await screen.findByText('Título deve ter ao menos 3 caracteres'),
     ).toBeTruthy()
@@ -64,7 +60,6 @@ describe('TaskForm', () => {
     await fireEvent.changeText(screen.getByLabelText('Prazo'), '31022026')
     await fireEvent.press(screen.getByLabelText('Criar tarefa'))
 
-    // 31/02 não existe: a máscara aceita os dígitos, a validação recusa a data.
     expect(await screen.findByText('Use o formato dd/mm/aaaa')).toBeTruthy()
     expect(onSubmit).not.toHaveBeenCalled()
   })
@@ -126,7 +121,6 @@ describe('TaskForm', () => {
   it('vincula times selecionados no seletor carregado da API', async () => {
     const { onSubmit } = await renderForm()
 
-    // O seletor já carregou os times da API (ver renderForm).
     const teamChip = screen.getByLabelText('Time Squad Alpha')
 
     await fireEvent.changeText(

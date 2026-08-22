@@ -16,7 +16,6 @@ export class CreateTeam implements CreateTeamUseCase {
   ) {}
 
   async execute(input: CreateTeamInput): Promise<TeamOutput> {
-    // Valida o nome antes de ir ao banco: falha rapido e sem I/O desnecessario.
     const name = TeamName.create(input.name)
 
     const existing = await this.teamRepository.findByName(name)

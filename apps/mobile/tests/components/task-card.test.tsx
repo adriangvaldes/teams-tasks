@@ -2,12 +2,6 @@ import type { TaskDTO } from '@teams-tasks/shared'
 import { fireEvent, render, screen } from '@testing-library/react-native'
 import { TaskCard } from '@/components/task-card'
 
-/**
- * No @testing-library/react-native 14, `render` e `fireEvent` retornam Promise
- * (mudança que acompanha o modo concorrente do React 19). Daí o `await` em
- * todos os casos abaixo.
- */
-
 function makeTask(overrides: Partial<TaskDTO> = {}): TaskDTO {
   return {
     id: 'a0000001-0000-4000-8000-000000000001',
@@ -60,7 +54,6 @@ describe('TaskCard', () => {
       }),
     )
 
-    // Requisito de aceitação: a cor do time aparece como label/chip na tarefa.
     expect(screen.getByLabelText('Time Squad Alpha')).toBeTruthy()
   })
 
@@ -130,7 +123,6 @@ describe('TaskCard', () => {
         makeTask({ dueDate: '2020-01-01T18:00:00.000Z', isOverdue: true }),
       )
 
-      // Data muito antiga cai no formato absoluto ("Vence em 01 de jan...").
       expect(screen.getByText(/Vence em/)).toBeTruthy()
     })
 
