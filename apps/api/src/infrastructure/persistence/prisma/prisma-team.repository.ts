@@ -14,6 +14,7 @@ import type { TeamName } from '../../../domain/team/value-objects/team-name.vo'
 import { PrismaTeamMapper } from './mappers/prisma-team.mapper'
 import type { PrismaClient } from './prisma-client'
 import { isPrismaError, PRISMA_ERROR, violatedFields } from './prisma-errors'
+import { escapeLikePattern } from './prisma-search'
 
 export class PrismaTeamRepository implements TeamRepository {
   constructor(private readonly prisma: PrismaClient) {}
@@ -113,10 +114,12 @@ export class PrismaTeamRepository implements TeamRepository {
   ): Prisma.TeamWhereInput {
     if (!criteria.search) return {}
 
+    const term = escapeLikePattern(criteria.search)
+
     return {
       OR: [
-        { name: { contains: criteria.search, mode: 'insensitive' } },
-        { description: { contains: criteria.search, mode: 'insensitive' } },
+        { name: { contains: term, mode: 'insensitive' } },
+        { description: { contains: term, mode: 'insensitive' } },
       ],
     }
   }

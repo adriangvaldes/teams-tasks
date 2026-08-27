@@ -147,6 +147,26 @@ describe('GET /api/tasks', () => {
     expect(response.body.meta.total).toBe(1)
   })
 
+  it('trata curingas de LIKE como texto literal na busca', async () => {
+    const todas = await api().get('/api/tasks')
+
+    const porcento = await api().get('/api/tasks?search=%25')
+    const sublinhado = await api().get('/api/tasks?search=_')
+
+    expect(todas.body.meta.total).toBeGreaterThan(0)
+    expect(porcento.body.meta.total).toBe(0)
+    expect(sublinhado.body.meta.total).toBe(0)
+  })
+
+  it('encontra a tarefa que contem o curinga no titulo', async () => {
+    await api().post('/api/tasks').send({ title: 'Cobertura em 50% do app' })
+
+    const response = await api().get('/api/tasks?search=50%25')
+
+    expect(response.body.meta.total).toBe(1)
+    expect(response.body.data[0].title).toBe('Cobertura em 50% do app')
+  })
+
   it('pagina mantendo o total do conjunto filtrado', async () => {
     const response = await api().get('/api/tasks?status=PENDING&limit=1')
 

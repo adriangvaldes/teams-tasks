@@ -11,6 +11,7 @@ import { TeamsNotFoundError } from '../../../domain/team/errors/team-errors'
 import { PrismaTaskMapper } from './mappers/prisma-task.mapper'
 import type { PrismaClient } from './prisma-client'
 import { isPrismaError, PRISMA_ERROR } from './prisma-errors'
+import { escapeLikePattern } from './prisma-search'
 
 const WITH_TEAM_LINKS = { teams: { select: { teamId: true } } } as const
 
@@ -145,9 +146,11 @@ export class PrismaTaskRepository implements TaskRepository {
     }
 
     if (criteria.search) {
+      const term = escapeLikePattern(criteria.search)
+
       where.OR = [
-        { title: { contains: criteria.search, mode: 'insensitive' } },
-        { description: { contains: criteria.search, mode: 'insensitive' } },
+        { title: { contains: term, mode: 'insensitive' } },
+        { description: { contains: term, mode: 'insensitive' } },
       ]
     }
 
