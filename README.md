@@ -9,6 +9,7 @@ teams-tasks/
 │   └── mobile/              App: Expo, Expo Router, NativeWind, React Query
 ├── packages/
 │   └── shared/              Contratos Zod compartilhados pelas duas pontas
+├── specs/                   O que o sistema garante, regra a regra
 ├── docker-compose.yml       PostgreSQL 16 para desenvolvimento
 └── biome.json               Lint e format únicos para todo o monorepo
 ```
@@ -27,9 +28,13 @@ teams-tasks/
 10. [Deploy](#deploy)
 11. [O que eu faria diferente em produção](#o-que-eu-faria-diferente-em-produção)
 
-> **Comportamento contratado:** este README explica *como rodar e por que a
-> arquitetura é assim*. O que o sistema **garante** — regras numeradas, casos de
-> borda e o teste que prova cada uma — está em [`specs/`](specs/README.md).
+A documentação está dividida em três, cada uma respondendo uma pergunta diferente:
+
+| Documento | Responde |
+|---|---|
+| este `README.md` | Como rodar o projeto, e por que a arquitetura é assim |
+| [`specs/`](specs/README.md) | O que o sistema **garante**: regras numeradas, casos de borda e o teste que prova cada uma |
+| [`CONTRIBUTING.md`](CONTRIBUTING.md) | Convenções que valem para toda mudança, e as armadilhas conhecidas desta base |
 
 ## Stack e por que cada escolha
 
@@ -354,7 +359,7 @@ Toda resposta de sucesso é `{ data, meta? }`. Toda falha é `{ error: { code, m
 | `GET` | `/api/teams/:id` | Detalhe do time, com `taskCount` |
 | `PUT` | `/api/teams/:id` | Atualização parcial |
 | `DELETE` | `/api/teams/:id` | Remove time e desvincula tarefas |
-| `GET` | `/api/tasks` | Lista tarefas. `teamId`, `status`, `search`, `limit`, `offset`, `sort` |
+| `GET` | `/api/tasks` | Lista tarefas. `teamId` e `status` aceitam lista, mais `search`, `limit`, `offset`, `sort` |
 | `POST` | `/api/tasks` | Cria tarefa |
 | `GET` | `/api/tasks/:id` | Detalhe da tarefa |
 | `PUT` | `/api/tasks/:id` | Atualização parcial |
@@ -369,6 +374,16 @@ Toda resposta de sucesso é `{ data, meta? }`. Toda falha é `{ error: { code, m
 * Tarefas: `createdAt:desc` (padrão), `createdAt:asc`, `dueDate:asc`, `dueDate:desc`, `title:asc`, `title:desc`, `status:asc`, `status:desc`
 
 Ordenar por `dueDate` joga nulos para o fim, porque tarefa sem prazo não deve aparecer antes das que têm prazo. Toda ordenação desempata por `id`, sem o que a paginação pode repetir ou perder itens quando há empate no campo ordenado.
+
+**Filtros de lista.** `teamId` e `status` aceitam um valor ou vários separados por vírgula:
+
+```
+GET /api/tasks?status=PENDING,DONE&teamId=<uuid>,<uuid>
+```
+
+Dentro de um filtro os valores são OR — qualquer um dos times, qualquer um dos status. Entre filtros continua AND. Um valor único segue válido, então `?status=PENDING` funciona como sempre funcionou.
+
+A lista é normalizada num único lugar, no schema Zod compartilhado: separa por vírgula, apara espaços, descarta vazios e deduplica. Lista vazia equivale a filtro ausente. Se qualquer item for inválido a requisição inteira é rejeitada, com `details[].path` apontando o índice culpado, como `status.1`. Times têm teto de 20 por consulta.
 
 **Paginação** usa `limit`, com padrão 20 e teto 100, e `offset`, com padrão 0. O `meta` traz `total`, `limit`, `offset` e `hasMore`. O `total` é o do conjunto filtrado, não o da página.
 
@@ -449,6 +464,12 @@ A unicidade é insensível a maiúsculas, porque para o usuário "Squad Alpha" e
 
 ```bash
 curl -s "http://localhost:3333/api/tasks?teamId=33333333-3333-4333-8333-333333333333&status=PENDING&search=indices&sort=dueDate:asc" | jq
+```
+
+Os filtros aceitam vários valores. A consulta abaixo devolve o que estiver pendente **ou** concluído, em qualquer um dos dois times:
+
+```bash
+curl -s "http://localhost:3333/api/tasks?status=PENDING,DONE&teamId=11111111-1111-4111-8111-111111111111,33333333-3333-4333-8333-333333333333" | jq '.meta'
 ```
 
 ```json
@@ -642,10 +663,12 @@ pnpm --filter @teams-tasks/mobile test
 
 | Pacote | Statements | Observação |
 |---|---|---|
-| API, domínio e aplicação | 80,5% | Escopo configurado no `vitest.config.ts` |
-| Aplicativo | 50,5% | `api-error` em 100%, `http-client` em 90%, `use-tasks` em 65% |
+| API, domínio e aplicação | 94,2% | Escopo configurado no `vitest.config.ts` |
+| Aplicativo | 45,3% | `api-error` e os componentes de filtro em 100%, `http-client` em 92%, `use-tasks` em 66% |
 
-Os números são medidos, não estimados. A cobertura do aplicativo é a mais baixa e concentra o que falta: telas, `use-teams` e alguns componentes de UI ainda não têm teste próprio, embora sejam exercitados indiretamente.
+Os números são medidos, não estimados. A cobertura do aplicativo é a mais baixa, e a divisão importa mais que o total: o que decide comportamento está coberto — cliente HTTP, atualizações otimistas, filtros, formatação de data, contraste de cor. O que puxa o número para baixo é apresentação sem lógica própria: `bottom-sheet.tsx`, que é animação e gesto verificados à mão, `task-list.tsx`, que compõe peças já testadas, e a camada de `storage`, que é a maior dívida real da suíte.
+
+Total de **244 testes**: 94 unitários e 47 de integração na API, 103 no aplicativo.
 
 ### O que os testes protegem
 
@@ -698,7 +721,7 @@ apps/mobile/
     ├── api/                   Cliente HTTP, erro tipado, query keys
     ├── hooks/                 React Query, incluindo as atualizações otimistas
     ├── forms/                 Schemas de formulário
-    ├── components/            Domínio e UI
+    ├── components/            Domínio e UI, incluindo o sheet de filtros
     ├── storage/               Porta, MMKV, AsyncStorage e persistidor
     ├── lib/                   QueryClient, formatação, cor, status
     └── config/                Resolução da URL da API
