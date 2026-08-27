@@ -26,6 +26,13 @@ the same.
 | FP-11 | Task filters (`teamId`, `status`, `search`) are combinable and apply together (AND). |
 | FP-12 | The teams for a page of tasks are resolved in **one** query, never one per task. |
 | FP-13 | In the app, search is debounced at 350 ms and the term is trimmed before it becomes a cache key. |
+| FP-14 | The global task list filters by team, status and text at the same time; the three are independent and combine. |
+| FP-15 | The team filter is single-select, mirroring the API, where `teamId` takes one id and not a list. |
+| FP-16 | Each team's filter chip carries that team's colour, with text contrast computed the same way as the chips on a task card. |
+| FP-17 | The team filter is not rendered on a team's own screen, where the listing is already scoped to that team. |
+| FP-18 | While the team options are loading or failed to load, the team row is absent and the other filters keep working. |
+| FP-19 | A "clear filters" action appears only when at least one filter is active, and resets all three at once. |
+| FP-20 | The empty state distinguishes "nothing exists yet" from "nothing matches the filters", counting all three filters. |
 
 *On FP-7: without the tiebreaker, two tasks sharing a `createdAt` can swap
 positions between pages and appear duplicated or vanish. It is also what makes
@@ -94,6 +101,17 @@ instant of the database.
 sending `search=`, and the server requires at least 1 character when the
 parameter is present. That avoids two different cache keys for the same listing.
 
+**The team filter is single-select, and that is the API's shape, not a
+simplification.** `teamId` takes one id. Multi-team filtering would need the
+server to decide between "in any of these teams" and "in all of these teams" —
+two different queries with different index behaviour. Until a real use case
+picks one, the client does not pretend to offer both.
+
+**Filtering by team is not the same screen as browsing a team.** Tapping a team
+opens that team's screen, which carries its header, task count and actions. The
+filter on the global list answers a different question - "show me this team's
+work alongside my other filters" - and it keeps the user where they are.
+
 ## Traceability
 
 | Rule | Test |
@@ -111,3 +129,10 @@ parameter is present. That avoids two different cache keys for the same listing.
 | FP-11 | `list-tasks.use-case.spec.ts` → `"combina filtro de time e status"`; `tasks.routes.spec.ts` → `"combina teamId e status"` |
 | FP-12 | `list-tasks.use-case.spec.ts` → `"resolve os times da pagina em UMA consulta, sem N+1"` |
 | FP-13 | pending |
+| FP-14 | pending |
+| FP-15 | pending |
+| FP-16 | pending |
+| FP-17 | pending |
+| FP-18 | pending |
+| FP-19 | pending |
+| FP-20 | pending |
