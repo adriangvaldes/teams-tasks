@@ -1,10 +1,10 @@
 import { useLocalSearchParams, useRouter } from 'expo-router'
-import { ApiError } from '@/api/api-error'
 import { TaskForm } from '@/components/task-form'
 import { FormScreen } from '@/components/ui/form-screen'
 import { ErrorState, LoadingState } from '@/components/ui/states'
 import { type TaskFormValues, toTaskBody } from '@/forms/task-form.schema'
 import { useTask, useUpdateTask } from '@/hooks/use-tasks'
+import { messageFromError } from '@/lib/error-message'
 import { formatDateInput } from '@/lib/format'
 
 export default function EditTaskScreen() {
@@ -19,11 +19,10 @@ export default function EditTaskScreen() {
   if (query.isError) {
     return (
       <ErrorState
-        message={
-          query.error instanceof ApiError
-            ? query.error.userMessage
-            : 'Erro inesperado ao carregar a tarefa.'
-        }
+        message={messageFromError(
+          query.error,
+          'Erro inesperado ao carregar a tarefa.',
+        )}
         onRetry={() => void query.refetch()}
       />
     )

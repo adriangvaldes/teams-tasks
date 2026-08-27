@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react'
 import { ActivityIndicator, FlatList, Text, View } from 'react-native'
-import { ApiError } from '@/api/api-error'
+import { messageFromError } from '@/lib/error-message'
 import { EmptyState, ErrorState, LoadingState } from './states'
 
 export interface InfiniteListQuery {
@@ -58,11 +58,7 @@ export function PaginatedList<TItem>({
   if (query.isError) {
     return (
       <ErrorState
-        message={
-          query.error instanceof ApiError
-            ? query.error.userMessage
-            : errorFallback
-        }
+        message={messageFromError(query.error, errorFallback)}
         onRetry={query.refetch}
       />
     )

@@ -1,12 +1,12 @@
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router'
 import { Alert, Text, View } from 'react-native'
-import { ApiError } from '@/api/api-error'
 import { TaskList } from '@/components/task-list'
 import { Button } from '@/components/ui/button'
 import { Fab } from '@/components/ui/fab'
 import { ErrorState, LoadingState } from '@/components/ui/states'
 import { useDeleteTeam, useTeam } from '@/hooks/use-teams'
 import { readableTextColor, withAlpha } from '@/lib/color'
+import { isNotFoundError, messageFromError } from '@/lib/error-message'
 
 export default function TeamTasksScreen() {
   const router = useRouter()
@@ -18,16 +18,17 @@ export default function TeamTasksScreen() {
   if (query.isPending) return <LoadingState label="Carregando time…" />
 
   if (query.isError) {
-    const isNotFound = query.error instanceof ApiError && query.error.isNotFound
+    const isNotFound = isNotFoundError(query.error)
 
     return (
       <ErrorState
         message={
           isNotFound
             ? 'Este time não existe mais.'
-            : query.error instanceof ApiError
-              ? query.error.userMessage
-              : 'Erro inesperado ao carregar o time.'
+            : messageFromError(
+                query.error,
+                'Erro inesperado ao carregar o time.',
+              )
         }
         onRetry={isNotFound ? undefined : () => void query.refetch()}
       />
@@ -49,12 +50,7 @@ export default function TeamTasksScreen() {
             deleteTeam.mutate(team.id, {
               onSuccess: () => router.back(),
               onError: (error) => {
-                Alert.alert(
-                  'Não foi possível excluir',
-                  error instanceof ApiError
-                    ? error.userMessage
-                    : 'Tente novamente em instantes.',
-                )
+                Alert.alert('Não foi possível excluir', messageFromError(error))
               },
             })
           },

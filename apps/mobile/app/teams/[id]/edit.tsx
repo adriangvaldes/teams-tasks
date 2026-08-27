@@ -1,10 +1,10 @@
 import { useLocalSearchParams, useRouter } from 'expo-router'
-import { ApiError } from '@/api/api-error'
 import { TeamForm } from '@/components/team-form'
 import { FormScreen } from '@/components/ui/form-screen'
 import { ErrorState, LoadingState } from '@/components/ui/states'
 import { type TeamFormValues, toTeamBody } from '@/forms/team-form.schema'
 import { useTeam, useUpdateTeam } from '@/hooks/use-teams'
+import { messageFromError } from '@/lib/error-message'
 
 export default function EditTeamScreen() {
   const router = useRouter()
@@ -18,11 +18,10 @@ export default function EditTeamScreen() {
   if (query.isError) {
     return (
       <ErrorState
-        message={
-          query.error instanceof ApiError
-            ? query.error.userMessage
-            : 'Erro inesperado ao carregar o time.'
-        }
+        message={messageFromError(
+          query.error,
+          'Erro inesperado ao carregar o time.',
+        )}
         onRetry={() => void query.refetch()}
       />
     )

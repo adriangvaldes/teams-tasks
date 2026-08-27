@@ -2,13 +2,13 @@ import type { TaskStatusValue } from '@teams-tasks/shared'
 import { useRouter } from 'expo-router'
 import { useState } from 'react'
 import { Alert, View } from 'react-native'
-import { ApiError } from '@/api/api-error'
 import { useDebouncedValue } from '@/hooks/use-debounced-value'
 import {
   flattenTaskPages,
   useChangeTaskStatus,
   useTasks,
 } from '@/hooks/use-tasks'
+import { messageFromError } from '@/lib/error-message'
 import { cycleStatus } from '@/lib/task-status'
 import { TaskCard } from './task-card'
 import { FilterChips, type FilterOption } from './ui/filter-chips'
@@ -65,9 +65,7 @@ export function TaskList({
         onError: (error) =>
           Alert.alert(
             'Não foi possível alterar o status',
-            error instanceof ApiError
-              ? error.userMessage
-              : 'Tente novamente em instantes.',
+            messageFromError(error),
           ),
       },
     )

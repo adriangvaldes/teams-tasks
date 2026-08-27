@@ -1,12 +1,12 @@
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router'
 import { Alert, Text, View } from 'react-native'
-import { ApiError } from '@/api/api-error'
 import { StatusSelector } from '@/components/status-selector'
 import { TeamChip } from '@/components/team-chip'
 import { Button } from '@/components/ui/button'
 import { FormScreen } from '@/components/ui/form-screen'
 import { ErrorState, LoadingState } from '@/components/ui/states'
 import { useChangeTaskStatus, useDeleteTask, useTask } from '@/hooks/use-tasks'
+import { isNotFoundError, messageFromError } from '@/lib/error-message'
 import { formatDate, formatDueDateLabel } from '@/lib/format'
 
 export default function TaskDetailScreen() {
@@ -20,16 +20,17 @@ export default function TaskDetailScreen() {
   if (query.isPending) return <LoadingState label="Carregando tarefa…" />
 
   if (query.isError) {
-    const isNotFound = query.error instanceof ApiError && query.error.isNotFound
+    const isNotFound = isNotFoundError(query.error)
 
     return (
       <ErrorState
         message={
           isNotFound
             ? 'Esta tarefa não existe mais.'
-            : query.error instanceof ApiError
-              ? query.error.userMessage
-              : 'Erro inesperado ao carregar a tarefa.'
+            : messageFromError(
+                query.error,
+                'Erro inesperado ao carregar a tarefa.',
+              )
         }
         onRetry={isNotFound ? undefined : () => void query.refetch()}
       />
@@ -54,12 +55,7 @@ export default function TaskDetailScreen() {
             deleteTask.mutate(task.id, {
               onSuccess: () => router.back(),
               onError: (error) => {
-                Alert.alert(
-                  'Não foi possível excluir',
-                  error instanceof ApiError
-                    ? error.userMessage
-                    : 'Tente novamente em instantes.',
-                )
+                Alert.alert('Não foi possível excluir', messageFromError(error))
               },
             })
           },
@@ -103,9 +99,7 @@ export default function TaskDetailScreen() {
                   onError: (error) => {
                     Alert.alert(
                       'Não foi possível alterar o status',
-                      error instanceof ApiError
-                        ? error.userMessage
-                        : 'Tente novamente em instantes.',
+                      messageFromError(error),
                     )
                   },
                 },
