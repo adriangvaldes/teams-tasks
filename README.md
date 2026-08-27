@@ -27,6 +27,10 @@ teams-tasks/
 10. [Deploy](#deploy)
 11. [O que eu faria diferente em produção](#o-que-eu-faria-diferente-em-produção)
 
+> **Comportamento contratado:** este README explica *como rodar e por que a
+> arquitetura é assim*. O que o sistema **garante** — regras numeradas, casos de
+> borda e o teste que prova cada uma — está em [`specs/`](specs/README.md).
+
 ## Stack e por que cada escolha
 
 | Camada | Escolha | Motivo |
