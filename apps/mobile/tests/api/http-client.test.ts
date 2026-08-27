@@ -29,6 +29,24 @@ describe('buildQueryString', () => {
     ).toBe('?status=PENDING')
   })
 
+  it('junta listas com virgula, como a API espera', () => {
+    expect(buildQueryString({ status: ['PENDING', 'DONE'] })).toBe(
+      '?status=PENDING%2CDONE',
+    )
+  })
+
+  it('trata lista vazia como filtro ausente', () => {
+    expect(buildQueryString({ status: [], search: 'deploy' })).toBe(
+      '?search=deploy',
+    )
+  })
+
+  it('descarta entradas vazias dentro da lista', () => {
+    expect(buildQueryString({ teamId: ['abc', '', undefined, 'def'] })).toBe(
+      '?teamId=abc%2Cdef',
+    )
+  })
+
   it('devolve string vazia quando nada foi informado', () => {
     expect(buildQueryString({ search: undefined })).toBe('')
   })

@@ -34,8 +34,8 @@ export class TaskController {
     { query: listTasksQuerySchema },
     async ({ query }) => {
       const result = await this.listTasksUseCase.execute({
-        teamId: query.teamId,
-        status: query.status,
+        teamIds: query.teamId,
+        statuses: query.status,
         search: query.search,
         limit: query.limit,
         offset: query.offset,

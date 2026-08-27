@@ -137,12 +137,14 @@ export class PrismaTaskRepository implements TaskRepository {
   ): Prisma.TaskWhereInput {
     const where: Prisma.TaskWhereInput = {}
 
-    if (criteria.status) {
-      where.status = criteria.status.value
+    if (criteria.statuses && criteria.statuses.length > 0) {
+      where.status = { in: criteria.statuses.map((status) => status.value) }
     }
 
-    if (criteria.teamId) {
-      where.teams = { some: { teamId: criteria.teamId.value } }
+    if (criteria.teamIds && criteria.teamIds.length > 0) {
+      where.teams = {
+        some: { teamId: { in: criteria.teamIds.map((id) => id.value) } },
+      }
     }
 
     if (criteria.search) {

@@ -16,16 +16,20 @@ export class InMemoryTaskRepository implements TaskRepository {
   async list(criteria: ListTasksCriteria): Promise<PaginatedResult<Task>> {
     let result = [...this.items]
 
-    if (criteria.status) {
-      const status = criteria.status
+    const statuses = criteria.statuses
 
-      result = result.filter((task) => task.status.equals(status))
+    if (statuses && statuses.length > 0) {
+      result = result.filter((task) =>
+        statuses.some((status) => task.status.equals(status)),
+      )
     }
 
-    if (criteria.teamId) {
-      const teamId = criteria.teamId
+    const teamIds = criteria.teamIds
 
-      result = result.filter((task) => task.hasTeam(teamId))
+    if (teamIds && teamIds.length > 0) {
+      result = result.filter((task) =>
+        teamIds.some((teamId) => task.hasTeam(teamId)),
+      )
     }
 
     if (criteria.search) {

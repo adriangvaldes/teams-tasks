@@ -85,11 +85,11 @@ interface TaskFilterSheetProps {
   visible: boolean
   onClose: () => void
   statusOptions: StatusOption[]
-  status: TaskStatusValue | null
-  onStatusChange: (status: TaskStatusValue | null) => void
+  statuses: readonly TaskStatusValue[]
+  onToggleStatus: (status: TaskStatusValue | null) => void
   teams: TeamDTO[]
-  team: string | null
-  onTeamChange: (teamId: string | null) => void
+  selectedTeams: readonly string[]
+  onToggleTeam: (teamId: string | null) => void
   hasFilters: boolean
   onClear: () => void
   resultLabel: string
@@ -99,11 +99,11 @@ export function TaskFilterSheet({
   visible,
   onClose,
   statusOptions,
-  status,
-  onStatusChange,
+  statuses,
+  onToggleStatus,
   teams,
-  team,
-  onTeamChange,
+  selectedTeams,
+  onToggleTeam,
   hasFilters,
   onClear,
   resultLabel,
@@ -140,8 +140,12 @@ export function TaskFilterSheet({
               <OptionChip
                 key={option.value ?? 'all'}
                 label={option.label}
-                isSelected={option.value === status}
-                onPress={() => onStatusChange(option.value)}
+                isSelected={
+                  option.value === null
+                    ? statuses.length === 0
+                    : statuses.includes(option.value)
+                }
+                onPress={() => onToggleStatus(option.value)}
                 accessibilityLabel={`Status ${option.label}`}
               />
             ))}
@@ -151,8 +155,8 @@ export function TaskFilterSheet({
             <Section title="Time">
               <OptionChip
                 label="Todos"
-                isSelected={team === null}
-                onPress={() => onTeamChange(null)}
+                isSelected={selectedTeams.length === 0}
+                onPress={() => onToggleTeam(null)}
                 accessibilityLabel="Todos os times"
               />
 
@@ -161,10 +165,8 @@ export function TaskFilterSheet({
                   key={option.id}
                   label={option.name}
                   color={option.colorHex}
-                  isSelected={option.id === team}
-                  onPress={() =>
-                    onTeamChange(option.id === team ? null : option.id)
-                  }
+                  isSelected={selectedTeams.includes(option.id)}
+                  onPress={() => onToggleTeam(option.id)}
                   accessibilityLabel={`Time ${option.name}`}
                 />
               ))}

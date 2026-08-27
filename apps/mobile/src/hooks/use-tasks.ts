@@ -183,12 +183,16 @@ function restoreTaskQueries(
   }
 }
 
-function statusFilterOf(queryKey: readonly unknown[]): TaskStatusValue | null {
+function statusFilterOf(
+  queryKey: readonly unknown[],
+): readonly TaskStatusValue[] | null {
   const filters = queryKey[queryKey.length - 1]
 
   if (typeof filters !== 'object' || filters === null) return null
 
-  return (filters as TaskListFilters).status ?? null
+  const status = (filters as TaskListFilters).status
+
+  return status && status.length > 0 ? status : null
 }
 
 function patchTaskInLists(
@@ -213,7 +217,7 @@ function patchTaskInLists(
     const statusFilter = statusFilterOf(key)
     const shouldRemove =
       updated === null ||
-      (statusFilter !== null && updated.status !== statusFilter)
+      (statusFilter !== null && !statusFilter.includes(updated.status))
 
     queryClient.setQueryData<TaskPages>(key, {
       ...current,

@@ -72,11 +72,11 @@ async function renderSheet(
     visible: true,
     onClose: noop,
     statusOptions: STATUS_OPTIONS,
-    status: null,
-    onStatusChange: noop,
+    statuses: [],
+    onToggleStatus: noop,
     teams: TEAMS,
-    team: null,
-    onTeamChange: noop,
+    selectedTeams: [],
+    onToggleTeam: noop,
     hasFilters: false,
     onClear: noop,
     resultLabel: 'Ver 10 tarefas',
@@ -105,30 +105,79 @@ describe('TaskFilterSheet', () => {
   })
 
   it('emite o status escolhido', async () => {
-    const onStatusChange = jest.fn<void, [TaskStatusValue | null]>()
-    await renderSheet({ onStatusChange })
+    const onToggleStatus = jest.fn<void, [TaskStatusValue | null]>()
+    await renderSheet({ onToggleStatus })
 
     await fireEvent.press(screen.getByLabelText('Status Concluídas'))
 
-    expect(onStatusChange).toHaveBeenCalledWith('DONE')
+    expect(onToggleStatus).toHaveBeenCalledWith('DONE')
   })
 
   it('emite o time escolhido', async () => {
-    const onTeamChange = jest.fn<void, [string | null]>()
-    await renderSheet({ onTeamChange })
+    const onToggleTeam = jest.fn<void, [string | null]>()
+    await renderSheet({ onToggleTeam })
 
     await fireEvent.press(screen.getByLabelText('Time Design System'))
 
-    expect(onTeamChange).toHaveBeenCalledWith(DESIGN)
+    expect(onToggleTeam).toHaveBeenCalledWith(DESIGN)
   })
 
-  it('deseleciona ao tocar no time que ja estava ativo', async () => {
-    const onTeamChange = jest.fn<void, [string | null]>()
-    await renderSheet({ team: ALPHA, onTeamChange })
+  it('marca todos os valores selecionados, nao apenas um', async () => {
+    await renderSheet({
+      statuses: ['PENDING', 'DONE'],
+      selectedTeams: [ALPHA, DESIGN],
+    })
+
+    expect(
+      screen.getByLabelText('Status Pendentes').props.accessibilityState,
+    ).toMatchObject({ selected: true })
+    expect(
+      screen.getByLabelText('Status Concluídas').props.accessibilityState,
+    ).toMatchObject({ selected: true })
+    expect(
+      screen.getByLabelText('Time Squad Alpha').props.accessibilityState,
+    ).toMatchObject({ selected: true })
+    expect(
+      screen.getByLabelText('Time Design System').props.accessibilityState,
+    ).toMatchObject({ selected: true })
+  })
+
+  it('emite o time ja ativo, para que a tela o remova', async () => {
+    const onToggleTeam = jest.fn<void, [string | null]>()
+    await renderSheet({ selectedTeams: [ALPHA], onToggleTeam })
 
     await fireEvent.press(screen.getByLabelText('Time Squad Alpha'))
 
-    expect(onTeamChange).toHaveBeenCalledWith(null)
+    expect(onToggleTeam).toHaveBeenCalledWith(ALPHA)
+  })
+
+  it('a opcao "todos" fica marcada quando nada esta escolhido', async () => {
+    await renderSheet({ statuses: [], selectedTeams: [] })
+
+    expect(
+      screen.getByLabelText('Status Todas').props.accessibilityState,
+    ).toMatchObject({ selected: true })
+    expect(
+      screen.getByLabelText('Todos os times').props.accessibilityState,
+    ).toMatchObject({ selected: true })
+  })
+
+  it('a opcao "todos" limpa aquele filtro', async () => {
+    const onToggleStatus = jest.fn<void, [TaskStatusValue | null]>()
+    const onToggleTeam = jest.fn<void, [string | null]>()
+
+    await renderSheet({
+      statuses: ['PENDING'],
+      selectedTeams: [ALPHA],
+      onToggleStatus,
+      onToggleTeam,
+    })
+
+    await fireEvent.press(screen.getByLabelText('Status Todas'))
+    await fireEvent.press(screen.getByLabelText('Todos os times'))
+
+    expect(onToggleStatus).toHaveBeenCalledWith(null)
+    expect(onToggleTeam).toHaveBeenCalledWith(null)
   })
 
   it('so oferece limpar quando ha filtro ativo', async () => {

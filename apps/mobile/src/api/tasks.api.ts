@@ -9,8 +9,8 @@ import { buildQueryString, httpClient } from './http-client'
 import type { ItemResponse, ListResponse } from './types'
 
 export interface TaskListFilters {
-  teamId?: string | undefined
-  status?: TaskStatusValue | undefined
+  teamId?: readonly string[] | undefined
+  status?: readonly TaskStatusValue[] | undefined
   search?: string | undefined
   limit?: number | undefined
   offset?: number | undefined

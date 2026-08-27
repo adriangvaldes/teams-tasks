@@ -175,12 +175,12 @@ work alongside my other filters" - and it keeps the user where they are.
 | FP-12 | `list-tasks.use-case.spec.ts` → `"resolve os times da pagina em UMA consulta, sem N+1"` |
 | FP-13 | pending |
 | FP-14 | pending — the API side is covered by `list-tasks.use-case.spec.ts` → `"combina filtro de time e status"` |
-| FP-15 | pending |
-| FP-15a | pending |
-| FP-15b | pending |
-| FP-15c | pending |
-| FP-16a | pending |
-| FP-16b | pending |
+| FP-15 | `apps/api/tests/integration/tasks.routes.spec.ts` → `"aceita varios status separados por virgula"`, `"aceita varios times separados por virgula"`; client side in `apps/mobile/tests/api/http-client.test.ts` → `"junta listas com virgula, como a API espera"` |
+| FP-15a | `apps/api/tests/unit/application/list-tasks.use-case.spec.ts` → `"filtra por varios status ao mesmo tempo"`, `"filtra por varios times ao mesmo tempo"`, `"combina filtro de time e status"` |
+| FP-15b | `tasks.routes.spec.ts` → `"ignora valores repetidos na lista"`, `"trata lista vazia como ausencia de filtro"`; `http-client.test.ts` → `"trata lista vazia como filtro ausente"` |
+| FP-15c | `tasks.routes.spec.ts` → `"rejeita a lista inteira quando um valor e invalido"` |
+| FP-16a | `apps/mobile/tests/components/task-filter-sheet.test.tsx` → `"marca todos os valores selecionados, nao apenas um"`, `"emite o time ja ativo, para que a tela o remova"` |
+| FP-16b | `task-filter-sheet.test.tsx` → `"a opcao \"todos\" fica marcada quando nada esta escolhido"`, `"a opcao \"todos\" limpa aquele filtro"` |
 | FP-16 | `task-filter-sheet.test.tsx` → `"lista as opcoes de status e de time"`, `"nao renderiza nada quando esta fechado"` |
 | FP-17 | `apps/mobile/tests/components/task-filter-bar.test.tsx` → `"mostra cada filtro ativo como chip removivel"` |
 | FP-18 | `task-filter-bar.test.tsx` → `"anuncia quantos filtros estao ativos"` |

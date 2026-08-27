@@ -50,7 +50,7 @@ describe('ListTasks', () => {
       { title: 'Configurar pipeline', status: 'DONE', teamIds: [TEAM_INFRA] },
       {
         title: 'Revisar indices de busca',
-        status: 'PENDING',
+        statuses: ['PENDING'],
         teamIds: [TEAM_INFRA],
       },
       { title: 'Preparar backlog', status: 'PENDING', teamIds: [] },
@@ -79,7 +79,7 @@ describe('ListTasks', () => {
   it('filtra por time', async () => {
     const result = await useCase.execute({
       ...DEFAULT_QUERY,
-      teamId: TEAM_INFRA,
+      teamIds: [TEAM_INFRA],
     })
 
     expect(result.total).toBe(2)
@@ -92,17 +92,45 @@ describe('ListTasks', () => {
   it('filtra por status', async () => {
     const result = await useCase.execute({
       ...DEFAULT_QUERY,
-      status: 'PENDING',
+      statuses: ['PENDING'],
     })
 
     expect(result.total).toBe(2)
   })
 
+  it('filtra por varios status ao mesmo tempo', async () => {
+    const result = await useCase.execute({
+      ...DEFAULT_QUERY,
+      statuses: ['PENDING', 'DONE'],
+    })
+
+    const apenasPendenteOuConcluida = result.items.every(
+      (task) => task.status === 'PENDING' || task.status === 'DONE',
+    )
+
+    expect(result.total).toBeGreaterThan(2)
+    expect(apenasPendenteOuConcluida).toBe(true)
+  })
+
+  it('filtra por varios times ao mesmo tempo', async () => {
+    const somenteInfra = await useCase.execute({
+      ...DEFAULT_QUERY,
+      teamIds: [TEAM_INFRA],
+    })
+
+    const infraEAlpha = await useCase.execute({
+      ...DEFAULT_QUERY,
+      teamIds: [TEAM_INFRA, TEAM_ALPHA],
+    })
+
+    expect(infraEAlpha.total).toBeGreaterThan(somenteInfra.total)
+  })
+
   it('combina filtro de time e status', async () => {
     const result = await useCase.execute({
       ...DEFAULT_QUERY,
-      teamId: TEAM_INFRA,
-      status: 'PENDING',
+      teamIds: [TEAM_INFRA],
+      statuses: ['PENDING'],
     })
 
     expect(result.items.map((task) => task.title)).toEqual([

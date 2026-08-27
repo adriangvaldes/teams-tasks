@@ -142,8 +142,39 @@ describe('useChangeTaskStatus', () => {
     pending.resolve({ data: makeTask({ status: 'DONE', isOverdue: false }) })
   })
 
+  it('mantem a tarefa quando o novo status ainda casa com a lista de filtros', async () => {
+    const pendenteOuConcluida: TaskListFilters = {
+      status: ['PENDING', 'DONE'],
+    }
+
+    seedList(client, pendenteOuConcluida, [makeTask()], 5)
+
+    const pending = deferred<unknown>()
+    mockFetch(pending.promise)
+
+    const { result } = await renderHook(() => useChangeTaskStatus(), {
+      wrapper: wrapperFor(client),
+    })
+
+    result.current.mutate({ taskId: TASK_ID, status: 'DONE' })
+
+    await waitFor(() => {
+      expect(
+        readList(client, pendenteOuConcluida)?.pages[0]?.data[0]?.status,
+      ).toBe('DONE')
+    })
+
+    // Continua na lista porque DONE tambem esta entre os filtros selecionados.
+    expect(readList(client, pendenteOuConcluida)?.pages[0]?.data).toHaveLength(
+      1,
+    )
+    expect(readList(client, pendenteOuConcluida)?.pages[0]?.meta.total).toBe(5)
+
+    pending.resolve({ data: makeTask({ status: 'DONE' }) })
+  })
+
   it('remove a tarefa da lista filtrada que ela deixou de casar', async () => {
-    const pendentes: TaskListFilters = { status: 'PENDING' }
+    const pendentes: TaskListFilters = { status: ['PENDING'] }
     const todas: TaskListFilters = { sort: 'createdAt:desc' }
 
     seedList(client, pendentes, [makeTask()], 7)

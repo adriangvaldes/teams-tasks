@@ -132,6 +132,46 @@ describe('GET /api/tasks', () => {
     expect(response.body.meta.total).toBe(2)
   })
 
+  it('aceita varios status separados por virgula', async () => {
+    const response = await api().get('/api/tasks?status=PENDING,DONE')
+
+    const statuses = response.body.data.map(
+      (task: { status: string }) => task.status,
+    )
+
+    expect(response.status).toBe(200)
+    expect(statuses).not.toContain('IN_PROGRESS')
+    expect(response.body.meta.total).toBeGreaterThan(1)
+  })
+
+  it('aceita varios times separados por virgula', async () => {
+    const somenteAlpha = await api().get(`/api/tasks?teamId=${alphaId}`)
+    const ambos = await api().get(`/api/tasks?teamId=${alphaId},${designId}`)
+
+    expect(ambos.body.meta.total).toBeGreaterThan(somenteAlpha.body.meta.total)
+  })
+
+  it('ignora valores repetidos na lista', async () => {
+    const uma = await api().get('/api/tasks?status=PENDING')
+    const repetida = await api().get('/api/tasks?status=PENDING,PENDING')
+
+    expect(repetida.body.meta.total).toBe(uma.body.meta.total)
+  })
+
+  it('rejeita a lista inteira quando um valor e invalido', async () => {
+    const response = await api().get('/api/tasks?status=PENDING,NAO_EXISTE')
+
+    expect(response.status).toBe(400)
+    expect(response.body.error.code).toBe('VALIDATION_ERROR')
+  })
+
+  it('trata lista vazia como ausencia de filtro', async () => {
+    const semFiltro = await api().get('/api/tasks')
+    const vazia = await api().get('/api/tasks?status=')
+
+    expect(vazia.body.meta.total).toBe(semFiltro.body.meta.total)
+  })
+
   it('combina teamId e status', async () => {
     const response = await api().get(
       `/api/tasks?teamId=${designId}&status=PENDING`,

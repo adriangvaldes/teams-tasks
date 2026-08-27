@@ -71,9 +71,31 @@ export const TASK_SORT_OPTIONS = [
   'status:desc',
 ] as const
 
+export const MAX_TEAM_FILTER = 20
+
+function commaSeparated<TSchema extends z.ZodTypeAny>(item: TSchema) {
+  return z.preprocess((value) => {
+    if (value === undefined) return undefined
+
+    const raw = Array.isArray(value) ? value : [value]
+
+    const parts = raw
+      .flatMap((entry) => String(entry).split(','))
+      .map((entry) => entry.trim())
+      .filter((entry) => entry.length > 0)
+
+    return parts.length > 0 ? [...new Set(parts)] : undefined
+  }, z.array(item).optional())
+}
+
 export const listTasksQuerySchema = paginationQuerySchema.extend({
-  teamId: z.uuid('teamId deve ser um UUID válido').optional(),
-  status: taskStatusSchema.optional(),
+  teamId: commaSeparated(z.uuid('teamId deve ser um UUID válido')).pipe(
+    z
+      .array(z.string())
+      .max(MAX_TEAM_FILTER, `Filtre por no máximo ${MAX_TEAM_FILTER} times`)
+      .optional(),
+  ),
+  status: commaSeparated(taskStatusSchema),
   search: z.string().trim().min(1).max(120).optional(),
   sort: z.enum(TASK_SORT_OPTIONS).default('createdAt:desc'),
 })

@@ -2,12 +2,22 @@ import { isErrorEnvelope } from '@teams-tasks/shared'
 import { API_BASE_URL, API_TIMEOUT_MS } from '@/config/env'
 import { ApiError } from './api-error'
 
-type QueryValue = string | number | boolean | undefined | null
+type QueryPrimitive = string | number | boolean | undefined | null
+type QueryValue = QueryPrimitive | readonly QueryPrimitive[]
 
 export function buildQueryString(params: Record<string, QueryValue>): string {
   const search = new URLSearchParams()
 
   for (const [key, value] of Object.entries(params)) {
+    if (Array.isArray(value)) {
+      const list = value.filter(
+        (entry) => entry !== undefined && entry !== null && entry !== '',
+      )
+
+      if (list.length > 0) search.set(key, list.join(','))
+      continue
+    }
+
     if (value === undefined || value === null || value === '') continue
     search.set(key, String(value))
   }

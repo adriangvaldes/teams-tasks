@@ -42,19 +42,19 @@ export function TaskList({
   const router = useRouter()
 
   const [search, setSearch] = useState('')
-  const [status, setStatus] = useState<TaskStatusValue | null>(null)
-  const [team, setTeam] = useState<string | null>(null)
+  const [statuses, setStatuses] = useState<readonly TaskStatusValue[]>([])
+  const [teamFilter, setTeamFilter] = useState<readonly string[]>([])
   const [isSheetOpen, setSheetOpen] = useState(false)
 
   const debouncedSearch = useDebouncedValue(search)
   const trimmedSearch = debouncedSearch.trim()
 
   const isTeamScoped = teamId !== undefined
-  const selectedTeam = isTeamScoped ? null : team
+  const selectedTeams = isTeamScoped ? [] : teamFilter
 
   const query = useTasks({
-    teamId: teamId ?? selectedTeam ?? undefined,
-    status: status ?? undefined,
+    teamId: isTeamScoped ? [teamId] : selectedTeams,
+    status: statuses,
     search: trimmedSearch || undefined,
     sort: 'createdAt:desc',
   })
@@ -64,34 +64,62 @@ export function TaskList({
 
   const teamOptions = useTeamOptions()
   const teams = isTeamScoped ? [] : (teamOptions.data?.data ?? [])
-  const selectedTeamName = teams.find((option) => option.id === selectedTeam)
 
-  const activeFilters: ActiveFilter[] = []
-
-  if (status !== null) {
-    activeFilters.push({
-      key: 'status',
+  const activeFilters: ActiveFilter[] = [
+    ...statuses.map((value) => ({
+      key: `status:${value}`,
       label:
-        STATUS_OPTIONS.find((option) => option.value === status)?.label ?? '',
-      onRemove: () => setStatus(null),
-    })
-  }
+        STATUS_OPTIONS.find((option) => option.value === value)?.label ?? '',
+      onRemove: () => toggleStatus(value),
+    })),
 
-  if (selectedTeamName) {
-    activeFilters.push({
-      key: 'team',
-      label: selectedTeamName.name,
-      color: selectedTeamName.colorHex,
-      onRemove: () => setTeam(null),
-    })
-  }
+    ...selectedTeams.flatMap((id) => {
+      const team = teams.find((option) => option.id === id)
+      if (!team) return []
 
-  const hasSheetFilters = activeFilters.length > 0
+      return [
+        {
+          key: `team:${id}`,
+          label: team.name,
+          color: team.colorHex,
+          onRemove: () => toggleTeam(id),
+        },
+      ]
+    }),
+  ]
+
+  const hasSheetFilters = statuses.length > 0 || selectedTeams.length > 0
   const hasFilters = hasSheetFilters || trimmedSearch !== ''
 
+  function toggleStatus(value: TaskStatusValue | null): void {
+    if (value === null) {
+      setStatuses([])
+      return
+    }
+
+    setStatuses((current) =>
+      current.includes(value)
+        ? current.filter((entry) => entry !== value)
+        : [...current, value],
+    )
+  }
+
+  function toggleTeam(value: string | null): void {
+    if (value === null) {
+      setTeamFilter([])
+      return
+    }
+
+    setTeamFilter((current) =>
+      current.includes(value)
+        ? current.filter((entry) => entry !== value)
+        : [...current, value],
+    )
+  }
+
   const clearSheetFilters = (): void => {
-    setStatus(null)
-    setTeam(null)
+    setStatuses([])
+    setTeamFilter([])
   }
 
   const handleToggleStatus = (
@@ -131,11 +159,11 @@ export function TaskList({
         visible={isSheetOpen}
         onClose={() => setSheetOpen(false)}
         statusOptions={STATUS_OPTIONS}
-        status={status}
-        onStatusChange={setStatus}
+        statuses={statuses}
+        onToggleStatus={toggleStatus}
         teams={teams}
-        team={selectedTeam}
-        onTeamChange={setTeam}
+        selectedTeams={selectedTeams}
+        onToggleTeam={toggleTeam}
         hasFilters={hasSheetFilters}
         onClear={clearSheetFilters}
         resultLabel={`Ver ${pluralizeTasks(total)}`}

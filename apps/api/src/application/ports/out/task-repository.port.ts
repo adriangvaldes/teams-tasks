@@ -10,8 +10,8 @@ import type {
 export type TaskSortField = 'createdAt' | 'dueDate' | 'title' | 'status'
 
 export interface ListTasksCriteria extends PaginationCriteria {
-  teamId?: UniqueEntityId | undefined
-  status?: TaskStatus | undefined
+  teamIds?: readonly UniqueEntityId[] | undefined
+  statuses?: readonly TaskStatus[] | undefined
   search?: string | undefined
   sort: SortCriteria<TaskSortField>
 }

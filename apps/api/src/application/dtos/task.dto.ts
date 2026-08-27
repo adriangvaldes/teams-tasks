@@ -48,8 +48,8 @@ export interface DeleteTaskInput {
 }
 
 export interface ListTasksInput {
-  teamId?: string | undefined
-  status?: string | undefined
+  teamIds?: readonly string[] | undefined
+  statuses?: readonly string[] | undefined
   search?: string | undefined
   limit: number
   offset: number

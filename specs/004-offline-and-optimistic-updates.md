@@ -22,7 +22,7 @@ update here has its way back written down and tested.
 | OF-4 | Writes to disk are throttled at 1 s. |
 | OF-5 | Changing status updates the list and the detail **before** the server responds. |
 | OF-6 | The optimistic update recomputes `isOverdue`: completing an overdue task removes the overdue highlight immediately. |
-| OF-7 | If a task stops matching a list's status filter, it is **removed** from that list and that list's `meta.total` is decremented. |
+| OF-7 | If a task stops matching a list's status filter, it is **removed** from that list and that list's `meta.total` is decremented. With several statuses selected, it stays as long as its new status is one of them. |
 | OF-8 | Deleting a task removes it from the list before the response, adjusting the total. |
 | OF-9 | Any failure restores the snapshot taken before the mutation — lists and detail return to their previous state. |
 | OF-10 | On settle, success or error, task and team queries are invalidated: the server has the final word. |
@@ -109,7 +109,7 @@ on the server, and it was deliberately left out.
 | OF-4 | pending |
 | OF-5 | `apps/mobile/tests/hooks/use-tasks.test.tsx` → `"atualiza a lista ANTES da resposta do servidor"` |
 | OF-6 | `use-tasks.test.tsx` → `"recalcula isOverdue: tarefa concluida nao esta atrasada"` |
-| OF-7 | `use-tasks.test.tsx` → `"remove a tarefa da lista filtrada que ela deixou de casar"` |
+| OF-7 | `use-tasks.test.tsx` → `"remove a tarefa da lista filtrada que ela deixou de casar"`, `"mantem a tarefa quando o novo status ainda casa com a lista de filtros"` |
 | OF-8 | `use-tasks.test.tsx` → `"remove da lista e ajusta o total antes da resposta"` |
 | OF-9 | `use-tasks.test.tsx` → `"desfaz a alteracao quando a requisicao falha"`, `"recoloca a tarefa na lista quando a exclusao falha"` |
 | OF-10 | pending |

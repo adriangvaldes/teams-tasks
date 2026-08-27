@@ -17,8 +17,8 @@ export class ListTasks implements ListTasksUseCase {
 
   async execute(input: ListTasksInput): Promise<PaginatedOutput<TaskOutput>> {
     const { items, total } = await this.taskRepository.list({
-      teamId: input.teamId ? UniqueEntityId.create(input.teamId) : undefined,
-      status: input.status ? TaskStatus.create(input.status) : undefined,
+      teamIds: input.teamIds?.map((id) => UniqueEntityId.create(id)),
+      statuses: input.statuses?.map((status) => TaskStatus.create(status)),
       search: input.search,
       limit: input.limit,
       offset: input.offset,
