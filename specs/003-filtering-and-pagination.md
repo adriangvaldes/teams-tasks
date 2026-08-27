@@ -28,15 +28,23 @@ the same.
 | FP-13 | In the app, search is debounced at 350 ms and the term is trimmed before it becomes a cache key. |
 | FP-14 | The global task list filters by team, status and text at the same time; the three are independent and combine. |
 | FP-15 | The team filter is single-select, mirroring the API, where `teamId` takes one id and not a list. |
-| FP-16 | Each team's filter chip carries that team's colour, with text contrast computed the same way as the chips on a task card. |
-| FP-17 | The team filter is not rendered on a team's own screen, where the listing is already scoped to that team. |
-| FP-18 | While the team options are loading or failed to load, the team row is absent and the other filters keep working. |
-| FP-19 | A "clear filters" action appears only when at least one filter is active, and resets all three at once. |
-| FP-20 | The empty state distinguishes "nothing exists yet" from "nothing matches the filters", counting all three filters. |
+| FP-16 | Status and team live in a bottom sheet; the search field stays on the screen. |
+| FP-17 | Whatever is active stays visible outside the sheet, as a chip that removes that one filter when tapped. |
+| FP-18 | The filter button shows how many of the sheet's filters are active. |
+| FP-19 | A team's chip carries that team's colour, with text contrast computed the same way as the chips on a task card. |
+| FP-20 | The sheet offers no team section on a team's own screen, nor while the team options have not loaded — the status options keep working either way. |
+| FP-21 | "Clear" appears only when at least one of the sheet's filters is active, and resets them together. |
+| FP-22 | Selecting an option applies it immediately; the sheet's button reports the resulting count and dismisses. |
+| FP-23 | The empty state distinguishes "nothing exists yet" from "nothing matches the filters", counting search as well. |
 
 *On FP-7: without the tiebreaker, two tasks sharing a `createdAt` can swap
 positions between pages and appear duplicated or vanish. It is also what makes
 moving to cursor pagination viable without changing the ordering contract.*
+
+*On FP-16 and FP-17: two rows of chips stacked above the list overflowed the
+screen and clipped the last team's name. The sheet holds the options and the bar
+holds only what is active, which is the pattern mobile filters converged on —
+and it leaves room for sorting later without redesigning anything.*
 
 *On FP-10: before the fix, `search=%` returned the entire dataset and `search=_`
 did too — the value went straight into Prisma's `contains`, which builds
@@ -107,6 +115,11 @@ server to decide between "in any of these teams" and "in all of these teams" —
 two different queries with different index behaviour. Until a real use case
 picks one, the client does not pretend to offer both.
 
+**The sheet's options are presentational.** `TaskFilterSheet` receives the team
+list as a prop instead of calling the query itself. That keeps the component
+testable without providers, and it costs nothing: the screen already needs the
+team list to label the active chip.
+
 **Filtering by team is not the same screen as browsing a team.** Tapping a team
 opens that team's screen, which carries its header, task count and actions. The
 filter on the global list answers a different question - "show me this team's
@@ -129,10 +142,13 @@ work alongside my other filters" - and it keeps the user where they are.
 | FP-11 | `list-tasks.use-case.spec.ts` → `"combina filtro de time e status"`; `tasks.routes.spec.ts` → `"combina teamId e status"` |
 | FP-12 | `list-tasks.use-case.spec.ts` → `"resolve os times da pagina em UMA consulta, sem N+1"` |
 | FP-13 | pending |
-| FP-14 | pending |
-| FP-15 | pending |
-| FP-16 | pending |
-| FP-17 | pending |
-| FP-18 | pending |
-| FP-19 | pending |
-| FP-20 | pending |
+| FP-14 | pending — the API side is covered by `list-tasks.use-case.spec.ts` → `"combina filtro de time e status"` |
+| FP-15 | `apps/mobile/tests/components/task-filter-sheet.test.tsx` → `"emite o time escolhido"`, `"deseleciona ao tocar no time que ja estava ativo"` |
+| FP-16 | `task-filter-sheet.test.tsx` → `"lista as opcoes de status e de time"`, `"nao renderiza nada quando esta fechado"` |
+| FP-17 | `apps/mobile/tests/components/task-filter-bar.test.tsx` → `"mostra cada filtro ativo como chip removivel"` |
+| FP-18 | `task-filter-bar.test.tsx` → `"anuncia quantos filtros estao ativos"` |
+| FP-19 | `apps/mobile/tests/lib/color.test.ts` (contrast) |
+| FP-20 | `task-filter-sheet.test.tsx` → `"omite a secao de times quando nao ha times para escolher"` |
+| FP-21 | `task-filter-sheet.test.tsx` → `"so oferece limpar quando ha filtro ativo"` |
+| FP-22 | `task-filter-sheet.test.tsx` → `"fecha pelo botao de aplicar e pelo fundo"` |
+| FP-23 | pending |

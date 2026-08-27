@@ -8,14 +8,16 @@ import {
   useChangeTaskStatus,
   useTasks,
 } from '@/hooks/use-tasks'
+import { useTeamOptions } from '@/hooks/use-teams'
 import { messageFromError } from '@/lib/error-message'
 import { cycleStatus } from '@/lib/task-status'
 import { TaskCard } from './task-card'
-import { FilterChips, type FilterOption } from './ui/filter-chips'
+import { type ActiveFilter, TaskFilterBar } from './task-filter-bar'
+import { type StatusOption, TaskFilterSheet } from './task-filter-sheet'
 import { PaginatedList } from './ui/paginated-list'
 import { SearchField } from './ui/search-field'
 
-const STATUS_FILTERS: FilterOption<TaskStatusValue>[] = [
+const STATUS_OPTIONS: StatusOption[] = [
   { value: null, label: 'Todas' },
   { value: 'PENDING', label: 'Pendentes' },
   { value: 'IN_PROGRESS', label: 'Em progresso' },
@@ -41,12 +43,17 @@ export function TaskList({
 
   const [search, setSearch] = useState('')
   const [status, setStatus] = useState<TaskStatusValue | null>(null)
+  const [team, setTeam] = useState<string | null>(null)
+  const [isSheetOpen, setSheetOpen] = useState(false)
 
   const debouncedSearch = useDebouncedValue(search)
   const trimmedSearch = debouncedSearch.trim()
 
+  const isTeamScoped = teamId !== undefined
+  const selectedTeam = isTeamScoped ? null : team
+
   const query = useTasks({
-    teamId,
+    teamId: teamId ?? selectedTeam ?? undefined,
     status: status ?? undefined,
     search: trimmedSearch || undefined,
     sort: 'createdAt:desc',
@@ -54,6 +61,38 @@ export function TaskList({
 
   const changeStatus = useChangeTaskStatus()
   const { tasks, total } = flattenTaskPages(query.data)
+
+  const teamOptions = useTeamOptions()
+  const teams = isTeamScoped ? [] : (teamOptions.data?.data ?? [])
+  const selectedTeamName = teams.find((option) => option.id === selectedTeam)
+
+  const activeFilters: ActiveFilter[] = []
+
+  if (status !== null) {
+    activeFilters.push({
+      key: 'status',
+      label:
+        STATUS_OPTIONS.find((option) => option.value === status)?.label ?? '',
+      onRemove: () => setStatus(null),
+    })
+  }
+
+  if (selectedTeamName) {
+    activeFilters.push({
+      key: 'team',
+      label: selectedTeamName.name,
+      color: selectedTeamName.colorHex,
+      onRemove: () => setTeam(null),
+    })
+  }
+
+  const hasSheetFilters = activeFilters.length > 0
+  const hasFilters = hasSheetFilters || trimmedSearch !== ''
+
+  const clearSheetFilters = (): void => {
+    setStatus(null)
+    setTeam(null)
+  }
 
   const handleToggleStatus = (
     taskId: string,
@@ -82,13 +121,25 @@ export function TaskList({
           />
         </View>
 
-        <FilterChips
-          options={STATUS_FILTERS}
-          selected={status}
-          onSelect={setStatus}
-          accessibilityLabel="Filtrar por status"
+        <TaskFilterBar
+          activeFilters={activeFilters}
+          onOpen={() => setSheetOpen(true)}
         />
       </View>
+
+      <TaskFilterSheet
+        visible={isSheetOpen}
+        onClose={() => setSheetOpen(false)}
+        statusOptions={STATUS_OPTIONS}
+        status={status}
+        onStatusChange={setStatus}
+        teams={teams}
+        team={selectedTeam}
+        onTeamChange={setTeam}
+        hasFilters={hasSheetFilters}
+        onClear={clearSheetFilters}
+        resultLabel={`Ver ${pluralizeTasks(total)}`}
+      />
 
       <PaginatedList
         query={query}
@@ -98,11 +149,11 @@ export function TaskList({
         countLabel={pluralizeTasks}
         loadingLabel="Carregando tarefas…"
         errorFallback="Erro inesperado ao carregar as tarefas."
-        isFiltered={status !== null || trimmedSearch !== ''}
+        isFiltered={hasFilters}
         emptyTitle={emptyTitle}
         emptyDescription={emptyDescription}
         filteredEmptyTitle="Nada encontrado"
-        filteredEmptyDescription="Tente outro termo de busca ou remova o filtro de status."
+        filteredEmptyDescription="Nenhuma tarefa combina com os filtros ativos."
         emptyActionLabel="Nova tarefa"
         onEmptyAction={() => router.push('/tasks/new')}
         renderItem={(task) => (
