@@ -30,9 +30,6 @@ export const STATUS_OPTIONS = TASK_STATUSES.map((status) => ({
   label: STATUS_APPEARANCE[status].label,
 }))
 
-export function cycleStatus(current: TaskStatusValue): TaskStatusValue {
-  const order: TaskStatusValue[] = ['PENDING', 'IN_PROGRESS', 'DONE']
-  const index = order.indexOf(current)
-
-  return order[(index + 1) % order.length] ?? 'PENDING'
+export function toggleDone(current: TaskStatusValue): TaskStatusValue {
+  return current === 'DONE' ? 'PENDING' : 'DONE'
 }

@@ -40,7 +40,7 @@ export function TaskCard({
         accessibilityLabel={
           isDone
             ? `Reabrir tarefa ${task.title}`
-            : `Avançar status da tarefa ${task.title}`
+            : `Concluir tarefa ${task.title}`
         }
         className={[
           'mt-0.5 h-6 w-6 items-center justify-center rounded-full border-2',

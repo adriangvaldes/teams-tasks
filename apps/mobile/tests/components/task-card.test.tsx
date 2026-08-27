@@ -85,9 +85,7 @@ describe('TaskCard', () => {
       await renderCard(makeTask(), { onPress, onToggleStatus })
 
       await fireEvent.press(
-        screen.getByLabelText(
-          'Avançar status da tarefa Implementar tela de listagem',
-        ),
+        screen.getByLabelText('Concluir tarefa Implementar tela de listagem'),
       )
 
       expect(onToggleStatus).toHaveBeenCalledTimes(1)

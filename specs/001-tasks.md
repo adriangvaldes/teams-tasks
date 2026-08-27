@@ -29,6 +29,8 @@ subtasks and no history of status changes.
 | TA-11 | On update, an **absent** field preserves the current value; a field sent as `null` clears it. |
 | TA-12 | Team existence is validated **before** any write: a task is never left half-updated. |
 | TA-13 | `createdAt` and `updatedAt` come from the `Clock` port, never from a database `DEFAULT now()`. |
+| TA-14 | The circle on a task card is binary: it completes a task, and completes it again into `PENDING`. It never produces `IN_PROGRESS`. |
+| TA-15 | The three statuses are all reachable from the task's own screen, through the status selector. |
 
 *On TA-5: idempotence exists because the UI has a quick status action in the
 list. Without it, tapping the same chip twice would touch `updatedAt` and
@@ -36,6 +38,12 @@ reorder the list under the user's finger.*
 
 *On TA-11: this is PATCH semantics applied to the PUT verb, and it is a
 conscious choice — see [Edge cases](#edge-cases).*
+
+*On TA-14: the control carries `accessibilityRole="checkbox"`, and a checkbox
+promises two states. It used to cycle through three, so tapping a pending task's
+empty circle moved it to `IN_PROGRESS` and left the circle empty — the tap
+looked like it had failed, and a screen reader announced "not checked" after an
+action that did not check it. Binary makes the control tell the truth.*
 
 ## Contracts
 
@@ -112,6 +120,11 @@ wiping data by accident. The `PUT` verb stayed because that is what the
 challenge brief suggests. If a second client ever appears, the right move is to
 rename it to `PATCH` — not to change the behaviour.
 
+**Completing from the list forgets `IN_PROGRESS`.** Reopening a completed task
+sends it to `PENDING`, not back to whatever it was before. Restoring the prior
+status would mean storing it somewhere, and the gain does not pay for the state:
+the task's own screen sets any status directly.
+
 **Deleting twice returns 404, not 204.** The second delete reports that there
 was nothing to delete instead of pretending it succeeded.
 
@@ -145,3 +158,5 @@ slipped.
 | TA-11 | `apps/api/tests/unit/application/update-task.use-case.spec.ts` → `"campo ausente (undefined) preserva o valor atual"`, `"null limpa o campo explicitamente"` |
 | TA-12 | `update-task.use-case.spec.ts` → `"valida a existencia dos times ANTES de aplicar qualquer mudanca"` |
 | TA-13 | `apps/api/tests/integration/tasks.routes.spec.ts` (deterministic timestamps via the test `Clock`) |
+| TA-14 | `apps/mobile/tests/lib/task-status.test.ts` → `"e binario: dois toques voltam ao ponto de partida"`, `"nunca devolve IN_PROGRESS, que so existe no seletor do detalhe"` |
+| TA-15 | pending — the selector on the task screen has no test of its own |

@@ -10,7 +10,7 @@ import {
 } from '@/hooks/use-tasks'
 import { useTeamOptions } from '@/hooks/use-teams'
 import { messageFromError } from '@/lib/error-message'
-import { cycleStatus } from '@/lib/task-status'
+import { toggleDone } from '@/lib/task-status'
 import { TaskCard } from './task-card'
 import { type ActiveFilter, TaskFilterBar } from './task-filter-bar'
 import { type StatusOption, TaskFilterSheet } from './task-filter-sheet'
@@ -99,7 +99,7 @@ export function TaskList({
     current: TaskStatusValue,
   ): void => {
     changeStatus.mutate(
-      { taskId, status: cycleStatus(current) },
+      { taskId, status: toggleDone(current) },
       {
         onError: (error) =>
           Alert.alert(
