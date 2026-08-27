@@ -27,10 +27,15 @@ the same.
 | FP-12 | The teams for a page of tasks are resolved in **one** query, never one per task. |
 | FP-13 | In the app, search is debounced at 350 ms and the term is trimmed before it becomes a cache key. |
 | FP-14 | The global task list filters by team, status and text at the same time; the three are independent and combine. |
-| FP-15 | The team filter is single-select, mirroring the API, where `teamId` takes one id and not a list. |
+| FP-15 | `teamId` and `status` each accept a comma-separated list, and a single value stays valid. |
+| FP-15a | Within one filter the values are OR: any of the selected teams, any of the selected statuses. Between filters it stays AND. |
+| FP-15b | Repeated values in a list are deduplicated silently; an empty list is the same as not filtering. |
+| FP-15c | A list of team ids is capped at 20, and every entry must be a UUID. |
 | FP-16 | Status and team live in a bottom sheet; the search field stays on the screen. |
-| FP-17 | Whatever is active stays visible outside the sheet, as a chip that removes that one filter when tapped. |
-| FP-18 | The filter button shows how many of the sheet's filters are active. |
+| FP-16a | Both are multiple choice: tapping an option adds or removes it without clearing the others. |
+| FP-16b | Each filter has an "all" option that clears that filter's selection, and it reads as selected while nothing is chosen. |
+| FP-17 | Whatever is active stays visible outside the sheet, one chip per selected value, each removing only itself when tapped. |
+| FP-18 | The filter button counts every selected value, not how many filters are in use. |
 | FP-19 | A team's chip carries that team's colour, with text contrast computed the same way as the chips on a task card. |
 | FP-20 | The sheet offers no team section on a team's own screen, nor while the team options have not loaded — the status options keep working either way. |
 | FP-21 | "Clear" appears only when at least one of the sheet's filters is active, and resets them together. |
@@ -42,6 +47,16 @@ the same.
 *On FP-7: without the tiebreaker, two tasks sharing a `createdAt` can swap
 positions between pages and appear duplicated or vanish. It is also what makes
 moving to cursor pagination viable without changing the ordering contract.*
+
+*On FP-15a: OR within a filter is what a filter means to a user - "show me these
+teams" - while AND between filters is what stacking them means. Teams could also
+have meant "tasks in ALL of these teams at once", which is a different query with
+different index behaviour and no use case asking for it.*
+
+*On FP-15: the parameters keep the singular names the brief documents,
+`teamId` and `status`, and simply accept a list. Renaming them to `teamIds` and
+`statuses` would read better and would break the contract the brief spells out;
+the names lost that argument.*
 
 *On FP-16 and FP-17: two rows of chips stacked above the list overflowed the
 screen and clipped the last team's name. The sheet holds the options and the bar
@@ -111,11 +126,13 @@ instant of the database.
 sending `search=`, and the server requires at least 1 character when the
 parameter is present. That avoids two different cache keys for the same listing.
 
-**The team filter is single-select, and that is the API's shape, not a
-simplification.** `teamId` takes one id. Multi-team filtering would need the
-server to decide between "in any of these teams" and "in all of these teams" —
-two different queries with different index behaviour. Until a real use case
-picks one, the client does not pretend to offer both.
+**A single value is still valid on the wire.** `?status=PENDING` behaves exactly
+as before, so nothing that integrated against the earlier contract breaks. The
+list is a widening, not a replacement.
+
+**Selecting every status is not the same as selecting none.** Both return the
+same rows, but the first is an explicit choice the user made and the chips keep
+saying so. The client does not silently collapse it into "no filter".
 
 **The animation is not `@gorhom/bottom-sheet`.** That library is the usual
 answer, and it was rejected on evidence: it has open issues against Reanimated 4
@@ -158,7 +175,12 @@ work alongside my other filters" - and it keeps the user where they are.
 | FP-12 | `list-tasks.use-case.spec.ts` → `"resolve os times da pagina em UMA consulta, sem N+1"` |
 | FP-13 | pending |
 | FP-14 | pending — the API side is covered by `list-tasks.use-case.spec.ts` → `"combina filtro de time e status"` |
-| FP-15 | `apps/mobile/tests/components/task-filter-sheet.test.tsx` → `"emite o time escolhido"`, `"deseleciona ao tocar no time que ja estava ativo"` |
+| FP-15 | pending |
+| FP-15a | pending |
+| FP-15b | pending |
+| FP-15c | pending |
+| FP-16a | pending |
+| FP-16b | pending |
 | FP-16 | `task-filter-sheet.test.tsx` → `"lista as opcoes de status e de time"`, `"nao renderiza nada quando esta fechado"` |
 | FP-17 | `apps/mobile/tests/components/task-filter-bar.test.tsx` → `"mostra cada filtro ativo como chip removivel"` |
 | FP-18 | `task-filter-bar.test.tsx` → `"anuncia quantos filtros estao ativos"` |
