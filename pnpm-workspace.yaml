@@ -38,3 +38,13 @@ minimumReleaseAgeExclude:
   - '@react-native/*'
   - 'react-native'
   - 'react-native-*'
+
+# O pnpm revalida as dependencias antes de todo script filtrado e, quando decide
+# reinstalar, dispara o postinstall `prisma generate` do apps/api. No Windows
+# isso falha com EPERM se a API ja estiver rodando: o processo mantem
+# query_engine-windows.dll.node aberto e o arquivo nao pode ser substituido.
+#
+# O sintoma e o segundo terminal do README (`pnpm dev:mobile`) morrer com codigo
+# 1 sem o Metro subir. Desligar a revalidacao resolve; `pnpm install` continua
+# sendo a forma explicita de sincronizar a arvore.
+verifyDepsBeforeRun: false
