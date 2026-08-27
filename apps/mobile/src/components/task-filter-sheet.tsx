@@ -1,6 +1,7 @@
 import type { TaskStatusValue, TeamDTO } from '@teams-tasks/shared'
-import { Modal, Pressable, ScrollView, Text, View } from 'react-native'
+import { Pressable, ScrollView, Text, View } from 'react-native'
 import { readableTextColor, withAlpha } from '@/lib/color'
+import { BottomSheet } from './ui/bottom-sheet'
 
 export interface StatusOption {
   value: TaskStatusValue | null
@@ -108,23 +109,13 @@ export function TaskFilterSheet({
   resultLabel,
 }: TaskFilterSheetProps) {
   return (
-    <Modal
+    <BottomSheet
       visible={visible}
-      transparent
-      animationType="slide"
-      onRequestClose={onClose}
+      onClose={onClose}
+      accessibilityLabel="Filtros de tarefas"
     >
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel="Fechar filtros"
-        onPress={onClose}
-        className="flex-1 bg-black/40"
-      />
-
-      <View className="rounded-t-3xl bg-surface pb-8 pt-3">
-        <View className="mb-4 h-1 w-10 self-center rounded-full bg-border" />
-
-        <View className="mb-4 flex-row items-center justify-between px-5">
+      <View className="gap-5">
+        <View className="flex-row items-center justify-between px-5">
           <Text className="text-lg font-semibold text-ink">Filtros</Text>
 
           {hasFilters ? (
@@ -141,7 +132,8 @@ export function TaskFilterSheet({
 
         <ScrollView
           className="max-h-96"
-          contentContainerClassName="gap-6 px-5 pb-2"
+          contentContainerClassName="gap-6 px-5"
+          showsVerticalScrollIndicator={false}
         >
           <Section title="Status">
             {statusOptions.map((option) => (
@@ -180,12 +172,20 @@ export function TaskFilterSheet({
           ) : null}
         </ScrollView>
 
-        <View className="px-5 pt-4">
+        <View className="px-5">
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Aplicar filtros"
             onPress={onClose}
-            className="h-12 items-center justify-center rounded-xl bg-brand-600 active:bg-brand-700"
+            className="items-center justify-center rounded-2xl bg-brand-600 active:bg-brand-700"
+            style={{
+              height: 52,
+              shadowColor: '#2563EB',
+              shadowOpacity: 0.25,
+              shadowRadius: 12,
+              shadowOffset: { width: 0, height: 4 },
+              elevation: 6,
+            }}
           >
             <Text className="text-base font-semibold text-white">
               {resultLabel}
@@ -193,6 +193,6 @@ export function TaskFilterSheet({
           </Pressable>
         </View>
       </View>
-    </Modal>
+    </BottomSheet>
   )
 }

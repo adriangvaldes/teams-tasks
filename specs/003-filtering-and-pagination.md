@@ -35,6 +35,8 @@ the same.
 | FP-20 | The sheet offers no team section on a team's own screen, nor while the team options have not loaded — the status options keep working either way. |
 | FP-21 | "Clear" appears only when at least one of the sheet's filters is active, and resets them together. |
 | FP-22 | Selecting an option applies it immediately; the sheet's button reports the resulting count and dismisses. |
+| FP-24 | The sheet springs up on open, and closes by the apply button, the backdrop, the Android back button, or by being dragged down past a third of its height or flung. |
+| FP-25 | The backdrop's opacity tracks the drag, so a half-dragged sheet is half-dimmed and the gesture is reversible. |
 | FP-23 | The empty state distinguishes "nothing exists yet" from "nothing matches the filters", counting search as well. |
 
 *On FP-7: without the tiebreaker, two tasks sharing a `createdAt` can swap
@@ -115,6 +117,19 @@ server to decide between "in any of these teams" and "in all of these teams" —
 two different queries with different index behaviour. Until a real use case
 picks one, the client does not pretend to offer both.
 
+**The animation is not `@gorhom/bottom-sheet`.** That library is the usual
+answer, and it was rejected on evidence: it has open issues against Reanimated 4
+and recent Expo SDKs, which is exactly this stack. The sheet is built directly
+on `react-native-reanimated` and `react-native-gesture-handler`, both already
+dependencies, which is what the library wraps anyway.
+
+**Reanimated cannot be imported in this Jest setup.** It loads native worklets
+and the suite dies with "Cannot read properties of undefined (reading
+'loadUnpackers')". Mocking reanimated's individual exports turned into a chase,
+so `ui/bottom-sheet.tsx` is mocked instead in the one test file that reaches it.
+That draws the line where it belongs: the frame's animation is verified by hand,
+its content by tests.
+
 **The sheet's options are presentational.** `TaskFilterSheet` receives the team
 list as a prop instead of calling the query itself. That keeps the component
 testable without providers, and it costs nothing: the screen already needs the
@@ -150,5 +165,7 @@ work alongside my other filters" - and it keeps the user where they are.
 | FP-19 | `apps/mobile/tests/lib/color.test.ts` (contrast) |
 | FP-20 | `task-filter-sheet.test.tsx` → `"omite a secao de times quando nao ha times para escolher"` |
 | FP-21 | `task-filter-sheet.test.tsx` → `"so oferece limpar quando ha filtro ativo"` |
-| FP-22 | `task-filter-sheet.test.tsx` → `"fecha pelo botao de aplicar e pelo fundo"` |
+| FP-22 | `task-filter-sheet.test.tsx` → `"fecha pelo botao de aplicar, que anuncia o resultado"` |
+| FP-24 | pending — the gesture belongs to `ui/bottom-sheet.tsx` and is verified by hand |
+| FP-25 | pending |
 | FP-23 | pending |

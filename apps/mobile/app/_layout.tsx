@@ -6,6 +6,7 @@ import { Stack } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import { useEffect, useState } from 'react'
 import { AppState, type AppStateStatus, Platform } from 'react-native'
+import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { AppErrorBoundary } from '@/components/error-boundary'
 import { createQueryClient } from '@/lib/query-client'
@@ -40,41 +41,46 @@ export default function RootLayout() {
       client={queryClient}
       persistOptions={{ persister, maxAge: 1000 * 60 * 60 * 24 }}
     >
-      <SafeAreaProvider>
-        <StatusBar style="dark" />
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <SafeAreaProvider>
+          <StatusBar style="dark" />
 
-        <Stack
-          screenOptions={{
-            headerStyle: { backgroundColor: '#FFFFFF' },
-            headerTitleStyle: { color: '#0F172A', fontWeight: '600' },
-            headerShadowVisible: false,
-            headerTintColor: '#2563EB',
-            contentStyle: { backgroundColor: '#F5F7FA' },
-          }}
-        >
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack
+            screenOptions={{
+              headerStyle: { backgroundColor: '#FFFFFF' },
+              headerTitleStyle: { color: '#0F172A', fontWeight: '600' },
+              headerShadowVisible: false,
+              headerTintColor: '#2563EB',
+              contentStyle: { backgroundColor: '#F5F7FA' },
+            }}
+          >
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
 
-          <Stack.Screen
-            name="tasks/new"
-            options={{ title: 'Nova tarefa', presentation: 'modal' }}
-          />
-          <Stack.Screen name="tasks/[id]/index" options={{ title: 'Tarefa' }} />
-          <Stack.Screen
-            name="tasks/[id]/edit"
-            options={{ title: 'Editar tarefa' }}
-          />
+            <Stack.Screen
+              name="tasks/new"
+              options={{ title: 'Nova tarefa', presentation: 'modal' }}
+            />
+            <Stack.Screen
+              name="tasks/[id]/index"
+              options={{ title: 'Tarefa' }}
+            />
+            <Stack.Screen
+              name="tasks/[id]/edit"
+              options={{ title: 'Editar tarefa' }}
+            />
 
-          <Stack.Screen
-            name="teams/new"
-            options={{ title: 'Novo time', presentation: 'modal' }}
-          />
-          <Stack.Screen name="teams/[id]/index" options={{ title: 'Time' }} />
-          <Stack.Screen
-            name="teams/[id]/edit"
-            options={{ title: 'Editar time' }}
-          />
-        </Stack>
-      </SafeAreaProvider>
+            <Stack.Screen
+              name="teams/new"
+              options={{ title: 'Novo time', presentation: 'modal' }}
+            />
+            <Stack.Screen name="teams/[id]/index" options={{ title: 'Time' }} />
+            <Stack.Screen
+              name="teams/[id]/edit"
+              options={{ title: 'Editar time' }}
+            />
+          </Stack>
+        </SafeAreaProvider>
+      </GestureHandlerRootView>
     </PersistQueryClientProvider>
   )
 }

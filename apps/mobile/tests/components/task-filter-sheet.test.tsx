@@ -10,6 +10,25 @@ import {
   TaskFilterSheet,
 } from '@/components/task-filter-sheet'
 
+/**
+ * O BottomSheet e so a moldura animada: reanimated carrega worklets nativos no
+ * import e derruba a suite inteira. O que estes testes verificam e o CONTEUDO
+ * do sheet, entao a moldura vira uma View que respeita `visible`.
+ */
+jest.mock('@/components/ui/bottom-sheet', () => {
+  const MockReact = require('react')
+
+  return {
+    BottomSheet: ({
+      visible,
+      children,
+    }: {
+      visible: boolean
+      children: React.ReactNode
+    }) => (visible ? MockReact.createElement('View', null, children) : null),
+  }
+})
+
 const ALPHA = '11111111-1111-4111-8111-111111111111'
 const DESIGN = '22222222-2222-4222-8222-222222222222'
 
@@ -121,14 +140,15 @@ describe('TaskFilterSheet', () => {
     expect(comFiltro.getByLabelText('Limpar filtros')).toBeTruthy()
   })
 
-  it('fecha pelo botao de aplicar e pelo fundo', async () => {
+  it('fecha pelo botao de aplicar, que anuncia o resultado', async () => {
     const onClose = jest.fn()
-    await renderSheet({ onClose })
+    await renderSheet({ onClose, resultLabel: 'Ver 3 tarefas' })
+
+    expect(screen.getByText('Ver 3 tarefas')).toBeTruthy()
 
     await fireEvent.press(screen.getByLabelText('Aplicar filtros'))
-    await fireEvent.press(screen.getByLabelText('Fechar filtros'))
 
-    expect(onClose).toHaveBeenCalledTimes(2)
+    expect(onClose).toHaveBeenCalledTimes(1)
   })
 
   it('nao renderiza nada quando esta fechado', async () => {
