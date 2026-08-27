@@ -86,13 +86,21 @@ curl http://localhost:3333/health/ready
 
 Leia isto antes de abrir um chamado de bug. O serviço nativo ocupa a porta 5432, e o Docker no Windows não falha de forma visível nessa colisão: `docker ps` reporta `0.0.0.0:5432->5432/tcp`, mas quem atende `localhost:5432` continua sendo o servidor nativo. O sintoma é traiçoeiro porque tudo funciona, só que contra o banco errado.
 
-Para diagnosticar:
+Para diagnosticar, conecte **de fora**, pela porta publicada — é isso que a API faz:
 
 ```bash
-docker compose exec postgres psql -U postgres -d teams_tasks -c "select version()"
+docker exec -e PGPASSWORD=postgres teams-tasks-db psql -h host.docker.internal -p 5432 -U postgres -d teams_tasks -c "select version()"
 ```
 
-Se a versão retornada não for a 16, publique o container em outra porta. Crie um `.env` na raiz com `POSTGRES_PORT=5433`, ajuste a porta no `DATABASE_URL` de `apps/api/.env` e rode `pnpm db:reset`.
+Se a versão retornada não for `16.x on x86_64-pc-linux-musl`, quem está atendendo é o servidor nativo. Não use `docker compose exec postgres psql …` para este diagnóstico: esse comando roda *dentro* do container e sempre responde 16, mesmo quando a porta está sequestrada.
+
+O contra-teste é olhar as tabelas pelo lado de dentro. Se o `pnpm setup` disse que deu certo mas isto vem vazio, as migrations foram para o banco errado:
+
+```bash
+docker compose exec postgres psql -U postgres -d teams_tasks -c "\dt"
+```
+
+Para corrigir, publique o container em outra porta: crie um `.env` na raiz com `POSTGRES_PORT=5433`, ajuste a porta no `DATABASE_URL` de `apps/api/.env` e rode `pnpm db:reset`.
 
 ### O aplicativo encontra a API sozinho
 
