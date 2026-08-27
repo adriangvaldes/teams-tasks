@@ -1,8 +1,9 @@
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router'
-import { Alert, Pressable, Text, View } from 'react-native'
+import { Alert, Text, View } from 'react-native'
 import { ApiError } from '@/api/api-error'
 import { TaskList } from '@/components/task-list'
 import { Button } from '@/components/ui/button'
+import { Fab } from '@/components/ui/fab'
 import { ErrorState, LoadingState } from '@/components/ui/states'
 import { useDeleteTeam, useTeam } from '@/hooks/use-teams'
 import { readableTextColor, withAlpha } from '@/lib/color'
@@ -127,21 +128,10 @@ export default function TeamTasksScreen() {
         emptyDescription="Crie uma tarefa já vinculada a este time."
       />
 
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel="Nova tarefa neste time"
+      <Fab
+        label="Nova tarefa neste time"
         onPress={() => router.push(`/tasks/new?teamId=${team.id}`)}
-        className="absolute bottom-6 right-5 h-14 w-14 items-center justify-center rounded-full bg-brand-600 active:bg-brand-700"
-        style={{
-          shadowColor: '#0F172A',
-          shadowOpacity: 0.2,
-          shadowRadius: 8,
-          shadowOffset: { width: 0, height: 4 },
-          elevation: 4,
-        }}
-      >
-        <Text className="text-3xl leading-9 text-white">+</Text>
-      </Pressable>
+      />
     </View>
   )
 }

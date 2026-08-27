@@ -1,7 +1,8 @@
 import { Link, Stack, useRouter } from 'expo-router'
 import { useState } from 'react'
-import { Pressable, Text, View } from 'react-native'
+import { View } from 'react-native'
 import { TeamCard } from '@/components/team-card'
+import { Fab } from '@/components/ui/fab'
 import { PaginatedList } from '@/components/ui/paginated-list'
 import { SearchField } from '@/components/ui/search-field'
 import { useDebouncedValue } from '@/hooks/use-debounced-value'
@@ -60,20 +61,7 @@ export default function TeamsScreen() {
       />
 
       <Link href="/teams/new" asChild>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Novo time"
-          className="absolute bottom-6 right-5 h-14 w-14 items-center justify-center rounded-full bg-brand-600 active:bg-brand-700"
-          style={{
-            shadowColor: '#0F172A',
-            shadowOpacity: 0.2,
-            shadowRadius: 8,
-            shadowOffset: { width: 0, height: 4 },
-            elevation: 4,
-          }}
-        >
-          <Text className="text-3xl leading-9 text-white">+</Text>
-        </Pressable>
+        <Fab label="Novo time" />
       </Link>
     </View>
   )
